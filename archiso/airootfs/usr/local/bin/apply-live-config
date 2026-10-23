@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+#
+# apply-live-config ROOT [USER] — run by Calamares (shellprocess@live_config,
+# not chrooted) during the online installation, once the packages are
+# installed in ROOT and USER is created. Copies the settings of the live ISO
+# to the installed system, according to the desktop chosen in Calamares
+# (packagechooser@desktop, detected from the installed packages):
+#   - XFCE: /etc/skel (XFCE settings changed at build time, theme switcher
+#     state, SMPlayer, .xprofile...), copied to the user's home at the end by
+#     Calamares, without the live-only "Ajuster la résolution" panel launcher,
+#     and the theme switcher (/usr/share/xfcethemes)
+#   - Openbox: the XFCE-independent part of /etc/skel (shells, Geany,
+#     SMPlayer) next to the one of packarch-openbox, and Openbox as
+#     the default LightDM session
+# and for both desktops:
+#   - no screen blanking from the X server (xorg.conf.d/10-no-blanking.conf)
+#   - numeric keypad on at the LightDM login screen (40-numlock.conf)
+#   - a dark LightDM greeter: Greybird-dark, Luna-Red-Dark icons, Qogir-Dark
+#     cursor (the desktop one is in skel)
+#   - Geany opening a new instance each time (pacman hook, also applied now)
+#   - useless entries hidden from the application menus (pacman hook
+#     running hide-desktop-entries, also applied now)
+#   - passwordless sudo for the wheel group
+#   - the GitHub setup asked at the first login (github-setup: decrypts the
+#     personal archive, only the encrypted file is on the ISO)
+# and, when rustup was selected in Calamares, installs the stable Rust
+# toolchain for USER (in their home: rustup toolchains are per user).
+
+set -u
+
+root="${1:?usage: apply-live-config ROOT [USER]}"
+user="${2:-}"
+[[ -d "$root/etc" ]] || { echo "Not an installed system: $root" >&2; exit 1; }
+
+if [[ -x "$root/usr/bin/openbox" && ! -x "$root/usr/bin/xfce4-session" ]]; then
+    desktop=openbox
+else
+    desktop=xfce
+fi
+echo "Desktop: $desktop"
+
+if [[ $desktop == xfce ]]; then
+    cp -a /etc/skel/. "$root/etc/skel/"
+    # Live only: "Ajuster la résolution" panel launcher (live-fit-display is
+    # not installed on the target)
+    sed -i -e '/<value type="int" value="31"\/>/d' \
+        -e '/<property name="plugin-31" type="string" value="launcher">/,/^    <\/property>/d' \
+        "$root/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+    rm -rf "$root/etc/skel/.config/xfce4/panel/launcher-31"
+    cp -a /usr/share/xfcethemes "$root/usr/share/"
+else
+    # /etc/skel of packarch-openbox is kept: only what does not depend on XFCE
+    # (no xfce4, xfcethemes, .xprofile: xfsettingsd also runs under Openbox
+    # and would apply the XFCE settings)
+    for f in .bash_profile .bashrc .config/smplayer \
+        .config/geany/geany.conf; do
+        [[ -e "/etc/skel/$f" ]] || continue
+        mkdir -p "$root/etc/skel/$(dirname "$f")"
+        cp -a "/etc/skel/$f" "$root/etc/skel/$f"
+    done
+    install -d "$root/etc/lightdm/lightdm.conf.d"
+    printf '[Seat:*]\nuser-session=openbox\n' \
+        > "$root/etc/lightdm/lightdm.conf.d/60-default-session.conf"
+fi
+install -D -m 644 /etc/X11/xorg.conf.d/10-no-blanking.conf \
+    "$root/etc/X11/xorg.conf.d/10-no-blanking.conf"
+# Numeric keypad on at the LightDM login screen (numlockx)
+install -D -m 644 /etc/lightdm/lightdm.conf.d/40-numlock.conf \
+    "$root/etc/lightdm/lightdm.conf.d/40-numlock.conf"
+# Dark LightDM greeter: Greybird-dark (packarch-themes), Luna-Red-Dark icons
+# (packarch-icons), Qogir-Dark cursor (qogir-icon-theme)
+greeter="$root/etc/lightdm/lightdm-gtk-greeter.conf"
+if [[ -f "$greeter" ]]; then
+    for setting in 'cursor-theme-name = Qogir-Dark' \
+        'icon-theme-name = Luna-Red-Dark' 'theme-name = Greybird-dark'; do
+        sed -i "/^${setting%% *} *=/d" "$greeter"
+        sed -i "/^\[greeter\]/a ${setting}" "$greeter"
+    done
+fi
+# geany is already installed: apply the hook now, it handles later upgrades
+install -D -m 644 /etc/pacman.d/hooks/90-geany-new-instance.hook \
+    "$root/etc/pacman.d/hooks/90-geany-new-instance.hook"
+[[ -f "$root/usr/share/applications/geany.desktop" ]] &&
+    sed -i 's|Exec=geany %F|Exec=geany -i %F|g' \
+        "$root/usr/share/applications/geany.desktop"
+# Entries hidden from the application menus: same hook, applied now as well
+install -D -m 755 /usr/local/bin/hide-desktop-entries \
+    "$root/usr/local/bin/hide-desktop-entries"
+install -D -m 644 /etc/pacman.d/hooks/90-hide-desktop-entries.hook \
+    "$root/etc/pacman.d/hooks/90-hide-desktop-entries.hook"
+/usr/local/bin/hide-desktop-entries "$root"
+
+# Read after Calamares' 10-installer (%wheel ALL=(ALL) ALL): the last match wins
+sudoers="$root/etc/sudoers.d/90-wheel-nopasswd"
+install -d -m 750 "$root/etc/sudoers.d"
+echo '%wheel  ALL=(ALL) NOPASSWD: ALL' > "$sudoers"
+chmod 440 "$sudoers"
+if ! visudo -cf "$sudoers" >/dev/null; then
+    echo "Invalid sudoers file, removed: $sudoers" >&2
+    rm -f "$sudoers"
+fi
+
+# First login: GitHub SSH key and gitconfig.sh (zenity and cryptyrust come
+# from netinstall_live.conf)
+install -D -m 755 /usr/local/bin/github-setup "$root/usr/local/bin/github-setup"
+install -D -m 644 /usr/share/github-setup/myEncryptedFile \
+    "$root/usr/share/github-setup/myEncryptedFile"
+install -D -m 644 /usr/share/github-setup/github-setup.desktop \
+    "$root/etc/xdg/autostart/github-setup.desktop"
+
+# Calamares mounts /proc, /sys and /dev in ROOT and copies resolv.conf there.
+# A failed download does not fail the installation: the user can run
+# "rustup default stable" later.
+if [[ -n "$user" && -x "$root/usr/bin/rustup" ]]; then
+    home="$(chroot "$root" getent passwd "$user" | cut -d: -f6)"
+    if [[ -n "$home" ]]; then
+        echo "Installing the stable Rust toolchain for $user"
+        chroot "$root" runuser -u "$user" -- env HOME="$home" \
+            rustup default stable ||
+            echo "rustup default stable failed for $user" >&2
+    else
+        echo "Unknown user $user: Rust toolchain not installed" >&2
+    fi
+fi
+
+exit 0

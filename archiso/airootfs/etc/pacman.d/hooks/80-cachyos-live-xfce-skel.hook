@@ -1,0 +1,13 @@
+# remove from airootfs!
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = cachyos-xfce-settings
+
+[Action]
+Description = Adjusting XFCE settings (no screen locking, Geany, Firefox, theme switcher, numlock, Thunar actions and menus) for the live environment...
+When = PostTransaction
+Depends = sh
+Depends = sed
+Exec = /bin/sh /etc/pacman.d/hooks/80-cachyos-live-xfce-skel.sh

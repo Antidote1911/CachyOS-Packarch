@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ajuster la résolution
+Comment=Adapter la résolution à la taille de la fenêtre de la machine virtuelle
+Exec=/usr/local/bin/live-fit-display
+Icon=preferences-desktop-display
+Terminal=false
+StartupNotify=false

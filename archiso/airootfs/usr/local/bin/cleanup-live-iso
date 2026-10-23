@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# cleanup-live-iso — run by Calamares (shellprocess@cleanup_live, chrooted in
+# the target) during an offline installation, right after the live system has
+# been copied to disk. Removes what only makes sense on the live ISO, before
+# the initramfs and the bootloader are generated.
+
+# initramfs: archiso hooks and preset
+rm -f /etc/mkinitcpio.conf.d/archiso.conf /etc/mkinitcpio.d/linux.preset
+
+# Kernels: /boot is empty in the squashfs (mkarchiso moves them to the ISO)
+for dir in /usr/lib/modules/*/; do
+    [[ -f "$dir/pkgbase" && -f "$dir/vmlinuz" ]] || continue
+    install -Dm644 "$dir/vmlinuz" "/boot/vmlinuz-$(<"$dir/pkgbase")"
+done
+
+# Passwordless sudo and polkit for the wheel group
+rm -f /etc/sudoers.d/g_wheel /etc/polkit-1/rules.d/49-nopasswd_global.rules
+
+# Console autologin of liveuser, SSH root login with password
+rm -rf /etc/systemd/system/getty@tty1.service.d
+rm -f /etc/ssh/sshd_config.d/10-archiso.conf
+rm -f /etc/systemd/system/multi-user.target.wants/sshd.service
+
+# Live-only services
+for unit in livecd-talk.service livecd-alsa-unmuter.service pacman-init.service; do
+    rm -f /etc/systemd/system/"$unit" /etc/systemd/system/*.wants/"$unit"
+done
+# The live ISO uses systemd-networkd, the installed system NetworkManager
+rm -f /etc/systemd/system/multi-user.target.wants/systemd-networkd.service \
+      /etc/systemd/system/sockets.target.wants/systemd-networkd.socket
+rm -rf /etc/systemd/system/systemd-time-wait-sync.service.d
+rm -f /etc/systemd/system/sysinit.target.wants/systemd-time-wait-sync.service
+rm -f /etc/systemd/system/etc-pacman.d-gnupg.mount
+rm -f /etc/systemd/journald.conf.d/volatile-storage.conf
+rm -f /etc/systemd/logind.conf.d/do-not-suspend.conf
+rm -f /etc/systemd/system-generators/systemd-gpt-auto-generator
+# Masked during the ISO build
+[[ "$(readlink /etc/systemd/system/cachyos-rate-mirrors.timer)" == /dev/null ]] &&
+    rm -f /etc/systemd/system/cachyos-rate-mirrors.timer
+
+# root: archiso automation and login message
+rm -f /root/.automated_script.sh /root/.zlogin /etc/motd
+rm -rf /root/.gnupg
+
+# Live launchers (Calamares, CachyOS Hello)
+rm -f /usr/local/bin/calamares-online.sh /usr/local/bin/pkexec-wrapper
+
+# First login: GitHub setup (not started on the live ISO)
+install -D -m 644 /usr/share/github-setup/github-setup.desktop \
+    /etc/xdg/autostart/github-setup.desktop
+
+# pacman keyring: a tmpfs on the live ISO, empty in the copied system
+pacman-key --init
+pacman-key --populate archlinux cachyos
+
+exit 0

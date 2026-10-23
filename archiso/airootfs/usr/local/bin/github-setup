@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#
+# github-setup — run at login on the installed system (XDG autostart installed
+# by apply-live-config) until it succeeds or the user declines. Asks with
+# zenity for the password of the personal archive encrypted with cryptyrust
+# (GitHub SSH key and gitconfig.sh), extracts it in the home directory and
+# runs gitconfig.sh. The password goes to cryptyrust through a pipe, never on
+# the command line, and the decrypted archive only lives in XDG_RUNTIME_DIR
+# (tmpfs, RAM).
+
+archive=/usr/share/github-setup/myEncryptedFile
+done_flag="${XDG_CONFIG_HOME:-$HOME/.config}/github-setup.done"
+log="${XDG_CACHE_HOME:-$HOME/.cache}/github-setup.log"
+title="Configuration de GitHub"
+
+[[ -f "$done_flag" ]] && exit 0
+[[ -r "$archive" ]] || exit 0
+command -v cryptyrust >/dev/null && command -v zenity >/dev/null || exit 0
+
+mark_done() {
+    mkdir -p "${done_flag%/*}" && touch "$done_flag"
+}
+
+tmp="$(mktemp -d -p "${XDG_RUNTIME_DIR:-/tmp}" github-setup.XXXXXX)" || exit 1
+trap 'rm -rf "$tmp"' EXIT
+mkdir -p "${log%/*}"
+
+while :; do
+    if ! pw="$(zenity --entry --hide-text --title="$title" \
+        --text="Mot de passe de l'archive personnelle\n(clé SSH GitHub et gitconfig.sh) :")"; then
+        if zenity --question --title="$title" \
+            --text="Configurer GitHub au prochain démarrage de session ?" \
+            --ok-label="Plus tard" --cancel-label="Ne plus demander"; then
+            exit 0
+        fi
+        mark_done
+        exit 0
+    fi
+    rm -f "$tmp/archive.tar.gz"
+    if cryptyrust -d "$archive" -f <(printf '%s' "$pw") \
+        -o "$tmp/archive.tar.gz" >"$log" 2>&1; then
+        break
+    fi
+    zenity --error --title="$title" \
+        --text="Déchiffrement impossible (mot de passe incorrect ?).\n\nDétails : $log"
+done
+unset pw
+
+if ! tar -xf "$tmp/archive.tar.gz" -C "$HOME" >>"$log" 2>&1; then
+    zenity --error --title="$title" \
+        --text="Extraction de l'archive impossible.\n\nDétails : $log"
+    exit 1
+fi
+rm -f "$tmp/archive.tar.gz"
+
+# ssh refuses private keys readable by others
+if [[ -d "$HOME/.ssh" ]]; then
+    chmod 700 "$HOME/.ssh"
+    find "$HOME/.ssh" -type f ! -name '*.pub' -exec chmod 600 {} +
+fi
+
+if [[ -f "$HOME/gitconfig.sh" ]]; then
+    chmod +x "$HOME/gitconfig.sh"
+    if ! (cd "$HOME" && ./gitconfig.sh) >>"$log" 2>&1; then
+        zenity --error --title="$title" \
+            --text="Clé installée, mais gitconfig.sh a échoué.\n\nDétails : $log"
+        mark_done
+        exit 1
+    fi
+fi
+
+mark_done
+zenity --info --title="$title" --text="GitHub est configuré."
+exit 0

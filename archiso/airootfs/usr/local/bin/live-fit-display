@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#
+# live-fit-display — bouton « Ajuster la résolution » du tableau de bord du
+# live (ajouté par 80-cachyos-live-xfce-skel.sh, retiré du système installé par
+# apply-live-config). Dans une machine virtuelle (QEMU, VirtualBox...), la
+# fenêtre propose sa taille comme mode préféré de l'écran virtuel, mais XFCE ne
+# l'applique pas tout seul.
+
+output="$(xrandr --query | awk '/ connected/ { print $1; exit }')"
+[[ -n "$output" ]] || { echo "Aucun écran connecté" >&2; exit 1; }
+exec xrandr --output "$output" --auto

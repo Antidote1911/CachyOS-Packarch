@@ -1,0 +1,14 @@
+# Geany always opens in a new instance (-i). Kept on the live and copied to
+# the installed system by apply-live-config, so that it is reapplied after
+# each upgrade of geany.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = geany
+
+[Action]
+Description = Making Geany open a new instance each time...
+When = PostTransaction
+Depends = sed
+Exec = /usr/bin/sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop

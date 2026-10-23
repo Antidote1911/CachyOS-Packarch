@@ -1,0 +1,19 @@
+# Hides useless entries from the application menus (list in
+# hide-desktop-entries). Kept on the live and copied to the installed system
+# by apply-live-config, so that it is reapplied after each upgrade.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = libxfce4ui
+Target = xfce4-settings
+Target = plank
+Target = mpv
+Target = v4l-utils
+Target = rofi
+
+[Action]
+Description = Hiding useless entries from the application menus...
+When = PostTransaction
+Depends = sed
+Exec = /usr/local/bin/hide-desktop-entries
