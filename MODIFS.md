@@ -352,9 +352,8 @@ de l'auteur) :
   `pacman.conf` du système installé). Pour le build, `archiso/pacman.conf`
   le déclare avec `Server = https://antidote1911.github.io/myrepo/$arch`
   (pas besoin du fichier de miroirs sur la machine qui construit l'ISO).
-- `etc/pacman.d/packarch-mirrorlist` est fourni par `airootfs` (copie de
-  [myxfce](https://github.com/Antidote1911/myxfce)) et **non** par le paquet
-  `packarch-mirrorlist` : ce paquet ne le déclare pas en `backup`, et Calamares
+- `etc/pacman.d/packarch-mirrorlist` est fourni par `airootfs` et **non** par le
+  paquet `packarch-mirrorlist` : ce paquet ne le déclare pas en `backup`, et Calamares
   doit le copier sur le système installé **avant** pacstrap (voir section 6),
   ce qui ferait échouer l'installation du paquet (« existe déjà »).
 - paquets installés (live et système installé), un par catégorie, chacun
@@ -463,7 +462,7 @@ notre Calamares plutôt que l'officiel.
 - **Configuration de GitHub au premier login** : `apply-live-config` copie
   aussi `/usr/local/bin/github-setup`, l'archive chiffrée
   `/usr/share/github-setup/myEncryptedFile` (clé SSH GitHub et `gitconfig.sh`,
-  chiffrée avec cryptyrust, reprise du dépôt `myxfce`) et l'entrée
+  chiffrée avec cryptyrust, embarquée dans l'ISO) et l'entrée
   `/etc/xdg/autostart/github-setup.desktop` (`OnlyShowIn=XFCE;OPENBOX;` :
   Openbox la lance aussi, par `openbox-xdg-autostart`). À l'ouverture de session,
   une fenêtre zenity demande le mot de passe de l'archive ; `github-setup` la
