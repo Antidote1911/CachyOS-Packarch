@@ -486,7 +486,7 @@ notre Calamares plutôt que l'officiel.
 
 Le choix « Openbox » installe `packarch-openbox` depuis [packarch] (sources :
 [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs), licence GPL3) :
-polybar, menus rofi, dunst, plank, picom, kitty et 15 thèmes, changés depuis
+polybar ou tint2, menus rofi, dunst, plank, picom, kitty et 15 thèmes, changés depuis
 le menu du bureau. La configuration est reprise de la version GPL3 de la
 configuration Openbox d'Aditya Shakya (7.0-9) ; la version premium (licence
 DBAD : 15 thèmes de plus et la fonction « Changer les couleurs ») n'est plus
@@ -502,7 +502,7 @@ supprimées.
 
 **Sélecteur de thèmes `packarch-skin`** (Rust, sources dans
 `myrepo-pkgs/packarch-skin`) : chaque thème est un dossier de
-`~/.config/openbox/themes` avec ses dispositions (`polybar/`, `rofi/`),
+`~/.config/openbox/themes` avec ses dispositions (`polybar/`, `rofi/`, `tint2/`),
 son fond d'écran et un `theme.toml` qui le décrit : couleurs
 (valeurs, références à d'autres couleurs, `lighten()`/`darken()`), rôles des
 couleurs dans la barre, rofi et dunst, polices, thèmes GTK/icônes/curseur,
@@ -513,7 +513,7 @@ thème et marges d'Openbox, dunst, plank, picom. Il remplace les scripts
 | Commande | Effet |
 |---|---|
 | `packarch-skin apply [THÈME]` | applique un thème (par défaut le courant) : fichiers de couleurs de polybar et rofi, kitty, Geany, GTK (xfconf, gsettings), `rc.xml` d'Openbox, dunst, plank (dconf), picom, fond d'écran (nitrogen), puis relance la barre |
-| `packarch-skin bar` | relance la barre (polybar) du thème courant ; détecte au premier lancement la batterie, l'adaptateur, le rétroéclairage et l'interface réseau (`/sys`) |
+| `packarch-skin bar [polybar\|tint2]` | relance la barre du thème courant, et change de barre si on en donne une (retenue dans `themes/.panel`, polybar par défaut) ; détecte au premier lancement de polybar la batterie, l'adaptateur, le rétroéclairage et l'interface réseau (`/sys`) |
 | `packarch-skin list`, `current`, `wallpaper`, `check` | thèmes, thème courant, fond d'écran, vérification des `theme.toml` |
 | `packarch-skin openbox-menu` | menu « Changer de style » d'Openbox |
 
@@ -554,8 +554,11 @@ Modifications de la configuration d'origine :
   « Changer de police ») : les codes des glyphes existent aussi dans d'autres
   polices d'icônes, de largeurs différentes ; « Favoris Internet » utilise le
   signet de feather au lieu du globe Font Awesome (7.0-19) ;
-- **tint2 retiré** : dispositions `tint2/` des thèmes, scripts `tint2-*`,
-  dépendance ; le menu « Barre (polybar) » lance, relance ou arrête polybar ;
+- **tint2** : retiré en 7.0-15 puis rétabli en 7.0-21 (`packarch-skin`
+  1.0.0-4) : dispositions `tint2/` des thèmes, scripts `tint2-*`, dépendance,
+  menu « Panneau / Barre » pour passer de polybar à tint2 ; lanceur kitty au
+  lieu d'alacritty, bouton `distributor-logo-archlinux` au lieu du logo des
+  illustrations supprimées ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
   dans les modules `date` de polybar, dates dans
   l'ordre français (`%d %b %Y`, sans le `It's`/`at` anglais), et

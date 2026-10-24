@@ -29,8 +29,8 @@ Le détail de chaque modification par rapport à l'ISO officielle est dans
   Nounours Player, packarch-rmatrix.
 - **Calamares recompilé** (dossier `calamares/`) :
   - page **« Bureau »** : installation **en ligne** du XFCE du live, avec ses
-    réglages et ses thèmes, ou du **bureau Openbox de Packarch** (polybar,
-    rofi, dunst, plank, une trentaine de thèmes), suivie d'un `pacman -Syu` ;
+    réglages et ses thèmes, ou du **bureau Openbox de Packarch** (polybar
+    ou tint2, rofi, dunst, plank, une trentaine de thèmes), suivie d'un `pacman -Syu` ;
   - logiciels optionnels à cocher : LibreOffice, GIMP, Steam, Discord,
     FileZilla, KeePassXC, Rust, Qt Creator, impression, accessibilité ;
   - `sudo` sans mot de passe pour le groupe `wheel` sur le système installé ;
