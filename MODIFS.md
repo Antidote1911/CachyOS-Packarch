@@ -132,7 +132,7 @@ de GRUB retirée, entrée systemd-boot `02-archiso-linux-cachyos.conf` retirée
 (doublon de `01-archiso-linux.conf`), et
 `airootfs/etc/mkinitcpio.d/linux.preset` (initramfs du live) pointe sur
 `linux-cachyos`. Le système installé n'a pas de LTS non plus (voir
-[Autres corrections dans `live-offline.patch`](#autres-corrections-dans-live-offlinepatch)).
+[Corrections du code](#corrections-du-code-live-offlinepatch)).
 
 **Ajoutés :**
 
@@ -170,7 +170,7 @@ dépendances, sauf `vim`, dont elle ne se sert pas ; il fournit
   `/etc/skel/.zshrc` est copié dans `/home/liveuser` par mkarchiso),
   `etc/passwd` donne `/usr/bin/zsh` à `root` et `liveuser`, et
   `root/.zshrc` charge la même configuration pour root ;
-- système installé : `users.conf` (dans `live-offline.patch`) crée l'utilisateur
+- système installé : `users.conf` (dans `etc/xdg/calamares/modules`) crée l'utilisateur
   avec `/bin/zsh` ; `packarch-zsh-config` est dans `netinstall_live.conf`
   et son `.zshrc` passe par `/etc/skel`. Root garde bash en installation en
   ligne. Le script `shell-setup` de Calamares, lancé à la fin, essaie zsh
@@ -215,8 +215,8 @@ installé par `removeun` et `removeun-online`).
 | `etc/locale.conf` | `LANG=fr_FR.UTF-8` (avant : `C.UTF-8`) |
 | `etc/locale.gen` | `fr_FR.UTF-8` et `en_US.UTF-8` |
 | `etc/pacman.d/hooks/40-cachyos-live-locale-gen.hook` | lance `locale-gen` pendant le build |
-| `etc/pacman.d/hooks/90-geany-new-instance.hook` | `geany.desktop` lance `geany -i %F` : une nouvelle instance à chaque ouverture ; gardé sur le live et copié sur le système installé par `apply-live-config` (réappliqué à chaque mise à jour de `geany`) |
-| `etc/pacman.d/hooks/90-hide-desktop-entries.hook` + `usr/local/bin/hide-desktop-entries` | ajoute `NoDisplay=true` (entrée cachée des menus XFCE et rofi, mais toujours utilisable comme application par défaut) à « À propos de Xfce » (`xfce4-about`), « Émulateur de terminal », « Lecteur de courriels », « Navigateur web » (`xfce4-terminal-emulator`, `xfce4-mail-reader`, `xfce4-web-browser`), Plank, mpv, Qt V4L2 test/video (`qv4l2`, `qvidcap`), Rofi, Rofi Theme Selector et Icon Browser (`yad-icon-browser` : yad reste installé, les menus Openbox s’en servent) ; gardé sur le live et copié sur le système installé (XFCE et Openbox) par `apply-live-config`, qui l'applique aussi tout de suite (réappliqué à chaque mise à jour des paquets concernés) |
+| `/usr/share/libalpm/hooks/90-packarch-geany-new-instance.hook` (`packarch-system-settings`) | `geany.desktop` lance `geany -i %F` : une nouvelle instance à chaque ouverture ; réappliqué à chaque mise à jour de `geany` (live et système installé) |
+| `/usr/share/libalpm/hooks/90-packarch-hide-desktop-entries.hook` + `/usr/bin/packarch-hide-desktop-entries` (`packarch-system-settings`) | ajoute `NoDisplay=true` (entrée cachée des menus XFCE et rofi, mais toujours utilisable comme application par défaut) à « À propos de Xfce » (`xfce4-about`), « Émulateur de terminal », « Lecteur de courriels », « Navigateur web » (`xfce4-terminal-emulator`, `xfce4-mail-reader`, `xfce4-web-browser`), Plank, mpv, Qt V4L2 test/video (`qv4l2`, `qvidcap`), Rofi, Rofi Theme Selector et Icon Browser (`yad-icon-browser` : yad reste installé, les menus Openbox s’en servent) ; réappliqué à chaque mise à jour des paquets concernés et à l'installation de `packarch-system-settings` (live et système installé, XFCE et Openbox) |
 | `etc/vconsole.conf` | `KEYMAP=fr-latin9` (consoles texte) |
 | `etc/X11/xorg.conf.d/00-keyboard.conf` | `XkbLayout fr` (LightDM et XFCE) |
 | `etc/localtime` | lien vers `Europe/Paris` (avant : `UTC`) |
@@ -259,13 +259,13 @@ de l'ISO à la fin.
   (écran jamais éteint, ordinateur jamais mis en veille, pas de verrouillage à
   la veille), `xfce4-screensaver.xml` (économiseur et verrouillage désactivés),
   `xfce4-session.xml` (pas de verrouillage à l'extinction). Équivalent des
-  anciens fichiers KDE. S'y ajoute `etc/X11/xorg.conf.d/10-no-blanking.conf`
-  (dans `airootfs`, copié sur le système installé par `apply-live-config`) :
-  le serveur X n'éteint plus l'écran de lui-même après 10 minutes, y compris
-  sur l'écran de connexion LightDM. De même,
-  `etc/lightdm/lightdm.conf.d/40-numlock.conf` (`greeter-setup-script=/usr/bin/numlockx on`,
-  paquet `numlockx` sur le live et dans `netinstall_live.conf`) allume le pavé
-  numérique dès l'écran de connexion.
+  anciens fichiers KDE. S'y ajoute, dans `packarch-system-settings` (XFCE et
+  Openbox), `/usr/share/X11/xorg.conf.d/10-packarch-no-blanking.conf` : le
+  serveur X n'éteint plus l'écran de lui-même après 10 minutes, y compris sur
+  l'écran de connexion LightDM. De même,
+  `/usr/share/lightdm/lightdm.conf.d/40-packarch-numlock.conf`
+  (`greeter-setup-script=/usr/bin/numlockx on`, `numlockx` en dépendance)
+  allume le pavé numérique dès l'écran de connexion.
 - **Actions personnalisées de Thunar** (`uca.xml`), `sudo` étant sans mot de
   passe pour le groupe `wheel` :
   - « Thunar Root » : `sudo thunar %f` (au lieu de `pkexec`), icône
@@ -308,13 +308,15 @@ de l'ISO à la fin.
   automatique d'Octopi Notifier (aucun des trois n'est installé) ;
   `BROWSER=firefox` dans `.profile` au lieu de `cachy-browser`. Le script
   d'installation de `cachyos-xfce-settings` (greeter LightDM `cachyos-nord`)
-  n'est pas repris : le greeter est réglé par `apply-live-config`.
+  n'est pas repris : le greeter est réglé par `packarch-system-settings`.
 - **Curseur `Qogir-Dark`** (fourni par `qogir-icon-theme`) : le sélecteur de
   thèmes ne le change pas.
-- **Greeter LightDM sombre** (système installé, XFCE et Openbox) :
-  `apply-live-config` règle dans `/etc/lightdm/lightdm-gtk-greeter.conf` le
-  thème GTK `Greybird-dark` (`packarch-themes`), les icônes `Luna-Red-Dark`
-  (`packarch-icons`) et le curseur `Qogir-Dark` (`qogir-icon-theme`).
+- **Greeter LightDM sombre** (XFCE et Openbox) : `packarch-system-settings`
+  règle dans `/usr/share/lightdm/lightdm-gtk-greeter.conf.d/50-packarch.conf`
+  le thème GTK `Greybird-dark` (`packarch-themes`), les icônes `Luna-Red-Dark`
+  (`packarch-icons`) et le curseur `Qogir-Dark` (`qogir-icon-theme`). Le
+  greeter lit ce dossier avant `/etc/lightdm/lightdm-gtk-greeter.conf`, dont
+  tous les réglages sont commentés : plus de `sed` sur ce fichier.
 - **Pas de galculator** : retiré de l'ISO et de l'installation en ligne ; le
   favori du menu Whisker et la touche Calculatrice (`XF86Calculator` dans
   `xfce4-keyboard-shortcuts.xml`) lancent LilouCalc à la place.
@@ -411,15 +413,15 @@ de l'auteur) :
 1. Le paquet officiel `cachyos-calamares-next` 3.4.2-13 était lié à
    `libboost_python314.so.1.91.0` alors que les dépôts fournissent boost 1.92 :
    Calamares ne démarrait pas.
-2. Ses fichiers de configuration (`/etc/calamares/…`) appartiennent au paquet et
-   ne peuvent pas être remplacés depuis `airootfs`.
+2. Quelques changements du code (voir
+   [Corrections du code](#corrections-du-code-live-offlinepatch)).
 
 Le dossier `calamares/` contient donc :
 
 | Fichier | Rôle |
 |---|---|
 | `PKGBUILD` | celui de [CachyOS-PKGBUILDS](https://github.com/CachyOS/CachyOS-PKGBUILDS) (`cachyos-calamares/`), version `3.4.2-13.8`, figé sur le commit `199d71543db8` de la branche `cachyos-dev`, applique `live-offline.patch` |
-| `live-offline.patch` | nos modifications des sources (détail ci-dessous) |
+| `live-offline.patch` | nos modifications du **code** seulement (5 fichiers, détail ci-dessous) |
 | `build.sh` | `makepkg`, puis copie du paquet dans `localrepo/` et `repo-add` ; rien si cette version y est déjà (`-f` : recompiler quand même) |
 
 Calamares est compilé avec
@@ -432,6 +434,35 @@ tournent sur le live ou le système installé, sur n'importe quel processeur.
 (`Server = file://…/localrepo`, `SigLevel = Optional TrustAll`) **avant**
 `[cachyos]` dans la copie de `pacman.conf` utilisée par le build : l'ISO prend
 notre Calamares plutôt que l'officiel.
+
+### Configuration : `airootfs/etc/xdg/calamares`
+
+Les fichiers de configuration du paquet (`/etc/calamares/…`) lui
+appartiennent et ne peuvent pas être remplacés depuis `airootfs` (mkarchiso
+échouerait). Notre configuration est donc dans
+`archiso/airootfs/etc/xdg/calamares/` : `settings_online.conf`,
+`settings_offline.conf` et `modules/` (`netinstall_live.conf`,
+`netinstall_offline.conf`, `packagechooser_desktop.conf`, `bootloader.conf`,
+`packages_offline.conf`, `users.conf`, `welcome.conf`, `shellprocess.conf`,
+`shellprocess_initialize_pacman.conf`, `shellprocess_live_config.conf`,
+`shellprocess_cleanup_live.conf`). `calamares-online.sh` copie
+`settings_online.conf` en `/etc/xdg/calamares/settings.conf` et lance
+`calamares -X`, qui cherche `settings.conf` et chaque `modules/<fichier>.conf`
+dans `/etc/xdg/calamares` **avant** `/etc/calamares` ; les modules non
+modifiés gardent la configuration du paquet. Calamares ne prend `/etc/xdg`
+que si `XDG_CONFIG_DIRS` est définie (une variable vide lui donne une liste
+vide, pas la valeur par défaut), et `pkexec` l'efface :
+`calamares-online.sh` la passe explicitement. Il copie aussi
+`settings_online.conf` en `/etc/calamares/settings.conf`, pour garder nos
+pages et étapes dans tous les cas. **À vérifier après un test** : aucun
+avertissement `No config file for` dans `/home/liveuser/cachy-install.log`
+(Calamares continue sans la configuration d'un module qu'il ne trouve pas).
+
+**Modifier la configuration** (liste de paquets, groupes, pages) : éditer ces
+fichiers puis reconstruire l'ISO, **sans recompiler Calamares**. Jusqu'au
+2026-10-24, elle était dans `live-offline.patch` (environ 1 100 lignes), à
+régénérer et recompiler à chaque changement. `removeun` (mode hors ligne)
+retire `/etc/xdg/calamares` du système installé.
 
 ### Installation en ligne (mode par défaut)
 
@@ -476,15 +507,16 @@ notre Calamares plutôt que l'officiel.
 - **`shellprocess@live_config`**, après l'installation des paquets : lance
   `/usr/local/bin/apply-live-config` (fourni par l'ISO). Il reconnaît le bureau
   choisi aux paquets installés (`openbox` sans `xfce4-session` : Openbox).
-  Les réglages du bureau viennent de son paquet (`packarch-xfce-settings` ou
-  `packarch-openbox`) ; il n'ajoute à leur `/etc/skel` que ce qui ne dépend pas
-  du bureau (`.bashrc`, `.bash_profile`, `geany.conf`, SMPlayer) : le
-  `/etc/skel` du live contient aussi les réglages XFCE, que `xfsettingsd`
-  appliquerait sous Openbox, et le bouton propre au live. Avec **Openbox**, il
-  en fait la session par défaut de LightDM
-  (`lightdm.conf.d/60-default-session.conf`). Dans les deux cas, il copie
-  `/etc/X11/xorg.conf.d/10-no-blanking.conf`, `/etc/lightdm/lightdm.conf.d/40-numlock.conf` et les hooks
-  `90-geany-new-instance.hook` et `90-hide-desktop-entries.hook` (qu'il applique aussi tout de suite). Il crée aussi `/etc/sudoers.d/90-wheel-nopasswd`
+  Les réglages du bureau viennent de son paquet (`packarch-xfce-settings`, ou
+  `packarch-openbox`, qui fait aussi d'Openbox la session par défaut de
+  LightDM : `/etc/lightdm/lightdm.conf.d/60-packarch-openbox.conf`), ceux
+  communs aux deux bureaux de `packarch-system-settings` (greeter et pavé
+  numérique de LightDM, pas d'extinction de l'écran, hooks de Geany et des
+  menus). `apply-live-config` ne copie que ce qui est propre à l'auteur et
+  n'a pas sa place dans le dépôt public : la partie du `/etc/skel` du live
+  indépendante du bureau (`.bashrc`, `.bash_profile`, `geany.conf`, SMPlayer ;
+  le reste contient les réglages XFCE, que `xfsettingsd` appliquerait sous
+  Openbox, et le bouton propre au live). Il crée aussi `/etc/sudoers.d/90-wheel-nopasswd`
   (`%wheel  ALL=(ALL) NOPASSWD: ALL`) : **`sudo` sans mot de passe** sur le
   système installé. Le nom en `90-` le fait lire après le `10-installer` de
   Calamares (`%wheel ALL=(ALL) ALL`), car c'est la dernière règle qui compte.
@@ -651,18 +683,18 @@ paquets. Il a été corrigé et reste disponible :
   `update_db: true` dans `packages_offline.conf`) ;
 - `grubcfg` ajouté ; GRUB par défaut (Limine n'est pas sur l'ISO).
 
-### Autres corrections dans `live-offline.patch`
+### Corrections du code (`live-offline.patch`)
 
 - `bootloader/main.py` et `grubcfg/main.py` : sans page de choix du chargeur,
   utilisent GRUB au lieu de ne rien installer.
-- `users/users.conf` : shell de l'utilisateur créé `/bin/zsh` au lieu de
-  `/bin/bash`.
+- `users.conf` (configuration) : shell de l'utilisateur créé `/bin/zsh` au
+  lieu de `/bin/bash`.
 - `src/scripts/shell-setup` : choisit zsh avant fish (`chsh` à la fin de
   l'installation, après `users.conf`), pour garder le shell du live.
 - `pacstrap/main.py` : installe `linux-cachyos` et ses en-têtes seulement,
   sans `linux-cachyos-lts` (ni `linux-cachyos-lts-zfs` sur ZFS), que le module
   ajoutait d'office.
-- `shellprocess.conf` : `~/.xprofile` n'est plus supprimé du dossier de
+- `shellprocess.conf` (configuration) : `~/.xprofile` n'est plus supprimé du dossier de
   l'utilisateur (nécessaire au fond d'écran), et `cachyos-calamares-next` est
   désinstallé à la toute fin (installation hors ligne).
 
@@ -682,13 +714,16 @@ Quand CachyOS publie une nouvelle version :
 git clone -b cachyos-dev https://github.com/CachyOS/cachyos-calamares calamares-src
 cd calamares-src
 git apply ../calamares/live-offline.patch     # corriger les conflits éventuels
-git add -A && git commit -m "Install the XFCE live ISO"
+git add -A && git commit -m "Code changes for the XFCE live ISO"
 git format-patch -1 --stdout > ../calamares/live-offline.patch
 git rev-parse HEAD~1                          # nouveau commit de base
 ```
 
 Puis, dans `calamares/PKGBUILD`, mettre à jour `_commit` (et `pkgver`/`pkgrel`
-d'après le PKGBUILD de CachyOS), et relancer `./build.sh`.
+d'après le PKGBUILD de CachyOS), et relancer `./build.sh`. Comparer aussi les
+fichiers de configuration de CachyOS (`settings_online.conf` et ceux de
+`src/modules/` que nous remplaçons) avec ceux de
+`archiso/airootfs/etc/xdg/calamares/`, pour reporter leurs changements.
 
 ---
 
@@ -710,19 +745,16 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `reset.sh`, `.gitignore` | ajoutés (nettoyage du projet) |
 | `testiso.sh`, `ci.build.sh`, `lddd.sh`, `machines/`, `testcases/` | supprimés |
 | `calamares/PKGBUILD`, `calamares/live-offline.patch`, `calamares/build.sh` | ajoutés |
+| `archiso/airootfs/etc/xdg/calamares/` | ajouté (configuration de Calamares, lue avec `calamares -X`) |
 | `localrepo/` | généré par `calamares/build.sh` |
 | `archiso/packages_desktop.x86_64` | KDE → XFCE et applications, `cachyos-zsh-config`, sans noyau LTS ni outils de secours |
 | `archiso/grub/`, `archiso/syslinux/`, `archiso/efiboot/`, `airootfs/etc/mkinitcpio.d/linux.preset` | `linux-cachyos` seul |
 | `archiso/airootfs/etc/passwd` | zsh pour `root` et `liveuser` |
 | `archiso/airootfs/root/.zshrc` | ajouté (configuration zsh CachyOS pour root) |
-| `archiso/profiledef.sh` | permissions 755 de `cleanup-live-iso`, `apply-live-config`, `live-fit-display`, `github-setup`, `hide-desktop-entries` |
+| `archiso/profiledef.sh` | permissions 755 de `cleanup-live-iso`, `apply-live-config`, `live-fit-display`, `github-setup` |
 | `archiso/airootfs/etc/locale.conf`, `locale.gen`, `vconsole.conf`, `localtime`, `X11/xorg.conf.d/00-keyboard.conf` | français, `Europe/Paris` |
 | `archiso/airootfs/etc/lightdm/lightdm.conf.d/50-cachyos-live.conf` | ajouté (connexion automatique) |
-| `archiso/airootfs/etc/X11/xorg.conf.d/10-no-blanking.conf` | ajouté (pas d'extinction de l'écran) |
-| `archiso/airootfs/etc/lightdm/lightdm.conf.d/40-numlock.conf` | ajouté (pavé numérique allumé sur l'écran de connexion) |
 | `archiso/airootfs/etc/pacman.d/hooks/40-cachyos-live-locale-gen.hook` | ajouté |
-| `archiso/airootfs/etc/pacman.d/hooks/90-geany-new-instance.hook` | ajouté (Geany en nouvelle instance) |
-| `archiso/airootfs/etc/pacman.d/hooks/90-hide-desktop-entries.hook`, `usr/local/bin/hide-desktop-entries` | ajoutés (entrées cachées des menus) |
 | `archiso/airootfs/etc/pacman.d/hooks/80-live-xfce-skel.hook` et `.sh` | ajoutés (bouton du live ; `80-cachyos-live-xfce-skel` jusqu'au 2026-10-24) |
 | `archiso/airootfs/etc/pacman.d/hooks/90-cachyos-live-kwin-keyboard.hook` | supprimé |
 | `archiso/airootfs/etc/plasmalogin.conf`, `plasmalogin.conf.d/` | supprimés |

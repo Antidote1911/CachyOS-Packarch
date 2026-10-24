@@ -49,8 +49,15 @@ main() {
 ########## Mode: $mode
 EOF
 
-    sudo cp "/usr/share/calamares/settings_${mode}.conf" /etc/calamares/settings.conf
-    exec pkexec-wrapper calamares -D6 >> "$log" 2>&1
+    # Our configuration (settings and module configurations) is in
+    # /etc/xdg/calamares, read before /etc/calamares with -X. Calamares only
+    # uses /etc/xdg when XDG_CONFIG_DIRS is set (pkexec clears it). The copy
+    # in /etc/calamares keeps our sequence of pages and jobs in any case: if
+    # /etc/xdg were not read, the log would show "No config file for" warnings
+    # for our module configurations.
+    sudo cp "/etc/xdg/calamares/settings_${mode}.conf" /etc/xdg/calamares/settings.conf
+    sudo cp "/etc/xdg/calamares/settings_${mode}.conf" /etc/calamares/settings.conf
+    exec pkexec-wrapper env XDG_CONFIG_DIRS=/etc/xdg calamares -X -D6 >> "$log" 2>&1
 }
 
 main "$@"

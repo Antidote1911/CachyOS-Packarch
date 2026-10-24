@@ -121,14 +121,15 @@ compilation de Calamares, VM…) et remet la date de l'ISO à `AAMMJJ` dans
 |---|---|
 | `build.sh`, `run.sh`, `reset.sh` | construire, tester, nettoyer |
 | `archiso/` | profil archiso : listes de paquets, `pacman.conf`, chargeurs de démarrage |
-| `archiso/airootfs/` | fichiers ajoutés au live : réglages (`etc/skel`), sélecteur de thèmes (`usr/share/xfcethemes`), scripts de l'installeur (`usr/local/bin`) |
-| `calamares/` | `PKGBUILD` de `cachyos-calamares-next` et `live-offline.patch` (configuration de l'installation) |
+| `archiso/airootfs/` | fichiers ajoutés au live : réglages non empaquetés (`etc/skel`), configuration de Calamares (`etc/xdg/calamares`), scripts de l'installeur (`usr/local/bin`) ; les réglages XFCE et le sélecteur de thèmes viennent de `packarch-xfce-settings`, les réglages communs de `packarch-system-settings` |
+| `calamares/` | `PKGBUILD` de `cachyos-calamares-next` et `live-offline.patch` (modifications du code) |
 | `scripts/` | machinerie de build d'origine de CachyOS (`buildiso.sh`…) |
 | `MODIFS.md` | documentation complète des modifications |
 
-Pour modifier l'installation (paquets installés, étapes de Calamares), voir
-la section « Installeur Calamares » de [`MODIFS.md`](MODIFS.md). Après chaque
-changement de `live-offline.patch`, incrémenter `pkgrel` dans
+Pour modifier l'installation (paquets installés, étapes de Calamares), éditer
+`archiso/airootfs/etc/xdg/calamares/` et reconstruire l'ISO, sans recompiler
+Calamares (voir la section « Installeur Calamares » de [`MODIFS.md`](MODIFS.md)).
+Après chaque changement de `live-offline.patch`, incrémenter `pkgrel` dans
 `calamares/PKGBUILD`, sinon pacman réutilise l'ancien paquet de son cache.
 
 ## Licence

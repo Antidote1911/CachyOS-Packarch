@@ -38,5 +38,4 @@ file_permissions=(
   ["/usr/local/bin/apply-live-config"]="0:0:755"
   ["/usr/local/bin/live-fit-display"]="0:0:755"
   ["/usr/local/bin/github-setup"]="0:0:755"
-  ["/usr/local/bin/hide-desktop-entries"]="0:0:755"
 )

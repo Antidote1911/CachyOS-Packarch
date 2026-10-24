@@ -2,21 +2,14 @@
 #
 # apply-live-config ROOT [USER] — run by Calamares (shellprocess@live_config,
 # not chrooted) during the online installation, once the packages are
-# installed in ROOT and USER is created. Copies the settings of the live ISO
-# to the installed system, according to the desktop chosen in Calamares
-# (packagechooser@desktop, detected from the installed packages). The
-# desktop settings are in /etc/skel of packarch-xfce-settings (XFCE settings,
-# theme switcher) or packarch-openbox; the live adds to it the
-# desktop-independent part of its /etc/skel (shells, Geany, SMPlayer), copied
-# to the user's home at the end by Calamares. With Openbox, it is also the
-# default LightDM session. For both desktops:
-#   - no screen blanking from the X server (xorg.conf.d/10-no-blanking.conf)
-#   - numeric keypad on at the LightDM login screen (40-numlock.conf)
-#   - a dark LightDM greeter: Greybird-dark, Luna-Red-Dark icons, Qogir-Dark
-#     cursor (the desktop one is in skel)
-#   - Geany opening a new instance each time (pacman hook, also applied now)
-#   - useless entries hidden from the application menus (pacman hook
-#     running hide-desktop-entries, also applied now)
+# installed in ROOT and USER is created. The settings of the desktop come from
+# its package (packarch-xfce-settings or packarch-openbox, which also makes
+# Openbox the default LightDM session), the ones common to both desktops
+# (LightDM greeter and numeric keypad, no screen blanking, Geany and menu
+# hooks) from packarch-system-settings. This script copies what is specific to
+# the author and not packaged in the public Packarch repository:
+#   - the desktop-independent part of the live /etc/skel (shells, Geany,
+#     SMPlayer), copied to the user's home at the end by Calamares
 #   - passwordless sudo for the wheel group
 #   - the GitHub setup asked at the first login (github-setup: decrypts the
 #     personal archive, only the encrypted file is on the ISO)
@@ -29,13 +22,6 @@ root="${1:?usage: apply-live-config ROOT [USER]}"
 user="${2:-}"
 [[ -d "$root/etc" ]] || { echo "Not an installed system: $root" >&2; exit 1; }
 
-if [[ -x "$root/usr/bin/openbox" && ! -x "$root/usr/bin/xfce4-session" ]]; then
-    desktop=openbox
-else
-    desktop=xfce
-fi
-echo "Desktop: $desktop"
-
 # Only what does not depend on the desktop: the live /etc/skel also holds
 # the XFCE settings of packarch-xfce-settings (already installed on the target
 # with XFCE; with Openbox, xfsettingsd also runs and would apply them) and the
@@ -45,38 +31,6 @@ for f in .bash_profile .bashrc .config/smplayer .config/geany/geany.conf; do
     mkdir -p "$root/etc/skel/$(dirname "$f")"
     cp -a "/etc/skel/$f" "$root/etc/skel/$f"
 done
-if [[ $desktop == openbox ]]; then
-    install -d "$root/etc/lightdm/lightdm.conf.d"
-    printf '[Seat:*]\nuser-session=openbox\n' \
-        > "$root/etc/lightdm/lightdm.conf.d/60-default-session.conf"
-fi
-install -D -m 644 /etc/X11/xorg.conf.d/10-no-blanking.conf \
-    "$root/etc/X11/xorg.conf.d/10-no-blanking.conf"
-# Numeric keypad on at the LightDM login screen (numlockx)
-install -D -m 644 /etc/lightdm/lightdm.conf.d/40-numlock.conf \
-    "$root/etc/lightdm/lightdm.conf.d/40-numlock.conf"
-# Dark LightDM greeter: Greybird-dark (packarch-themes), Luna-Red-Dark icons
-# (packarch-icons), Qogir-Dark cursor (qogir-icon-theme)
-greeter="$root/etc/lightdm/lightdm-gtk-greeter.conf"
-if [[ -f "$greeter" ]]; then
-    for setting in 'cursor-theme-name = Qogir-Dark' \
-        'icon-theme-name = Luna-Red-Dark' 'theme-name = Greybird-dark'; do
-        sed -i "/^${setting%% *} *=/d" "$greeter"
-        sed -i "/^\[greeter\]/a ${setting}" "$greeter"
-    done
-fi
-# geany is already installed: apply the hook now, it handles later upgrades
-install -D -m 644 /etc/pacman.d/hooks/90-geany-new-instance.hook \
-    "$root/etc/pacman.d/hooks/90-geany-new-instance.hook"
-[[ -f "$root/usr/share/applications/geany.desktop" ]] &&
-    sed -i 's|Exec=geany %F|Exec=geany -i %F|g' \
-        "$root/usr/share/applications/geany.desktop"
-# Entries hidden from the application menus: same hook, applied now as well
-install -D -m 755 /usr/local/bin/hide-desktop-entries \
-    "$root/usr/local/bin/hide-desktop-entries"
-install -D -m 644 /etc/pacman.d/hooks/90-hide-desktop-entries.hook \
-    "$root/etc/pacman.d/hooks/90-hide-desktop-entries.hook"
-/usr/local/bin/hide-desktop-entries "$root"
 
 # Read after Calamares' 10-installer (%wheel ALL=(ALL) ALL): the last match wins
 sudoers="$root/etc/sudoers.d/90-wheel-nopasswd"

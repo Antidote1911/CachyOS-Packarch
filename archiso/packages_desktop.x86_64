@@ -82,6 +82,7 @@ lightdm
 lightdm-gtk-greeter
 lightdm-gtk-greeter-settings
 numlockx
+packarch-system-settings
 liloucalc
 linux-atm
 linux-cachyos
