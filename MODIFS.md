@@ -317,6 +317,13 @@ de l'ISO à la fin.
   (`packarch-icons`) et le curseur `Qogir-Dark` (`qogir-icon-theme`). Le
   greeter lit ce dossier avant `/etc/lightdm/lightdm-gtk-greeter.conf`, dont
   tous les réglages sont commentés : plus de `sed` sur ce fichier.
+- **cachy-update toujours installé** (XFCE et Openbox) : dépendance de
+  `packarch-system-settings` (1.0-2). Son applet démarre à chaque session
+  (`/etc/xdg/autostart/arch-update-tray.desktop` du paquet ; sous Openbox,
+  `snixembed` de `packarch-openbox` l'affiche dans polybar ou tint2) et la
+  vérification quotidienne des mises à jour (`arch-update.timer`) est activée
+  pour tous les utilisateurs par
+  `/usr/lib/systemd/user/timers.target.wants/arch-update.timer`.
 - **Pas de galculator** : retiré de l'ISO et de l'installation en ligne ; le
   favori du menu Whisker et la touche Calculatrice (`XF86Calculator` dans
   `xfce4-keyboard-shortcuts.xml`) lancent LilouCalc à la place.
@@ -625,6 +632,10 @@ Modifications de la configuration d'origine :
   menu « Panneau / Barre » pour passer de polybar à tint2 ; lanceur kitty au
   lieu d'alacritty, bouton `distributor-logo-archlinux` au lieu du logo des
   illustrations supprimées ;
+- **icônes StatusNotifierItem dans la zone de notification** (7.0-23) :
+  `snixembed` (dépendance, lancé par `autostart` avant la barre) les affiche
+  dans la zone XEmbed de polybar et tint2, qui ne connaissent pas ce protocole
+  (applet de `cachy-update`, par exemple) ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
   dans les modules `date` de polybar, dates dans
   l'ordre français (`%d %b %Y`, sans le `It's`/`at` anglais), et
