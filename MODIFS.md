@@ -644,6 +644,10 @@ Modifications de la configuration d'origine :
   konsole, xterm…), donc « Lancer Cachy-Update » de l'applet ne faisait rien.
   Dépendance `xdg-terminal-exec` et `/etc/xdg/xdg-terminals.list`
   (`kitty.desktop`) ;
+- **thème `default` personnalisé** (7.0-26, réglé dans la VM) : fond
+  `wallpaper-alt.png`, icônes Luna-Antidote-Dark (aussi dans rofi), curseur
+  Pear-Dark et thème Openbox OB-Nordic, au lieu de `default.jpg`, Zafiro,
+  Qogirr et OB-Arc-Dark (seul son `theme.toml` change) ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
   dans les modules `date` de polybar, dates dans
   l'ordre français (`%d %b %Y`, sans le `It's`/`at` anglais), et
