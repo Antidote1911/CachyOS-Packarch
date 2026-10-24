@@ -575,8 +575,11 @@ supprimées.
 
 **Sélecteur de thèmes `packarch-skin`** (Rust, sources dans
 `myrepo-pkgs/packarch-skin`) : chaque thème est un dossier de
-`~/.config/openbox/themes` avec ses dispositions (`polybar/`, `rofi/`, `tint2/`),
-son fond d'écran et un `theme.toml` qui le décrit : couleurs
+`~/.config/openbox/themes` avec ses dispositions (`polybar/`, `rofi/`, `tint2/`)
+et un `theme.toml` qui le décrit : fond d'écran (`wallpaper =
+"/usr/share/backgrounds/…"`, chemin réel au lieu du lien `wallpaper` du
+dossier depuis packarch-openbox 7.0-25 ; changer le fond d'un thème = changer
+cette ligne), couleurs
 (valeurs, références à d'autres couleurs, `lighten()`/`darken()`), rôles des
 couleurs dans la barre, rofi et dunst, polices, thèmes GTK/icônes/curseur,
 thème et marges d'Openbox, dunst, plank, picom. Il remplace les scripts
