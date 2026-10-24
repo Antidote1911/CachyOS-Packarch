@@ -18,6 +18,7 @@ entries=(
     qvidcap.desktop                 # v4l-utils: Qt V4L2 video capture
     rofi.desktop                    # rofi
     rofi-theme-selector.desktop     # rofi
+    yad-icon-browser.desktop        # yad: Icon Browser (yad is needed by the Openbox menus)
 )
 
 for entry in "${entries[@]}"; do

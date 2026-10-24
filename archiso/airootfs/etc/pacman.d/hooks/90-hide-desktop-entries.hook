@@ -11,6 +11,7 @@ Target = plank
 Target = mpv
 Target = v4l-utils
 Target = rofi
+Target = yad
 
 [Action]
 Description = Hiding useless entries from the application menus...
