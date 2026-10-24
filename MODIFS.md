@@ -636,6 +636,11 @@ Modifications de la configuration d'origine :
   `snixembed` (dépendance, lancé par `autostart` avant la barre) les affiche
   dans la zone XEmbed de polybar et tint2, qui ne connaissent pas ce protocole
   (applet de `cachy-update`, par exemple) ;
+- **kitty pour les applications `Terminal=true`** (7.0-24) : GLib ne connaît
+  pas kitty (il essaie xdg-terminal-exec, gnome-terminal, xfce4-terminal,
+  konsole, xterm…), donc « Lancer Cachy-Update » de l'applet ne faisait rien.
+  Dépendance `xdg-terminal-exec` et `/etc/xdg/xdg-terminals.list`
+  (`kitty.desktop`) ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
   dans les modules `date` de polybar, dates dans
   l'ordre français (`%d %b %Y`, sans le `It's`/`at` anglais), et
