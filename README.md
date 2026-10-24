@@ -12,8 +12,9 @@ Le détail de chaque modification par rapport à l'ISO officielle est dans
 ## Ce que contient l'ISO
 
 - **Bureau XFCE** à la place de KDE Plasma, avec la configuration
-  `cachyos-xfce-settings` ajustée : LightDM, pas de mise en veille ni de
-  verrouillage sur le live, pavé numérique activé, curseur `Qogir-Dark`.
+  `packarch-xfce-settings` (`cachyos-xfce-settings` ajustée, dépôt Packarch) :
+  LightDM, pas de mise en veille ni de verrouillage, pavé numérique activé,
+  curseur `Qogir-Dark`.
 - **Français partout** : langue `fr_FR.UTF-8`, clavier `fr` (console et X),
   fuseau `Europe/Paris`.
 - **Sélecteur de thèmes** dans le tableau de bord : 7 thèmes (`default`,

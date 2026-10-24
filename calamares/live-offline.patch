@@ -1,4 +1,4 @@
-From c2287239f2d2f0581a543901a5001f6b297d6bb4 Mon Sep 17 00:00:00 2001
+From ced00023b11b9de0122037cf74ef30728ad97d74 Mon Sep 17 00:00:00 2001
 From: build <build@localhost>
 Date: Thu, 22 Oct 2026 09:41:05 +0200
 Subject: [PATCH] Install the XFCE live ISO or Openbox (online by default,
@@ -11,19 +11,19 @@ Subject: [PATCH] Install the XFCE live ISO or Openbox (online by default,
  src/modules/bootloader/main.py                |   9 +-
  src/modules/grubcfg/main.py                   |   3 +
  src/modules/netinstall/PackageModel.cpp       |   6 +
- src/modules/netinstall/netinstall_live.conf   | 373 ++++++++++++++++++
- .../netinstall/netinstall_offline.conf        |  72 ++++
- .../packagechooser_desktop.conf               | 286 +-------------
+ src/modules/netinstall/netinstall_live.conf   | 386 ++++++++++++++++++
+ .../netinstall/netinstall_offline.conf        |  82 ++++
+ .../packagechooser_desktop.conf               | 286 +------------
  src/modules/packages/packages_offline.conf    |   2 +-
  src/modules/pacstrap/main.py                  |   5 +-
  src/modules/shellprocess/shellprocess.conf    |   4 +-
  .../shellprocess_cleanup_live.conf            |  15 +
  .../shellprocess_initialize_pacman.conf       |   1 +
- .../shellprocess_live_config.conf             |  18 +
+ .../shellprocess_live_config.conf             |  19 +
  src/modules/users/users.conf                  |   2 +-
  src/modules/welcome/welcome.conf              |   2 +-
  src/scripts/shell-setup                       |   3 +-
- 18 files changed, 534 insertions(+), 287 deletions(-)
+ 18 files changed, 558 insertions(+), 287 deletions(-)
  create mode 100644 src/modules/netinstall/netinstall_live.conf
  create mode 100644 src/modules/netinstall/netinstall_offline.conf
  create mode 100644 src/modules/shellprocess/shellprocess_cleanup_live.conf
@@ -170,10 +170,10 @@ index bd666f3b7..9ae69fbb4 100644
  PackageTreeItem::List
 diff --git a/src/modules/netinstall/netinstall_live.conf b/src/modules/netinstall/netinstall_live.conf
 new file mode 100644
-index 000000000..03c87deaa
+index 000000000..3cc4e0599
 --- /dev/null
 +++ b/src/modules/netinstall/netinstall_live.conf
-@@ -0,0 +1,384 @@
+@@ -0,0 +1,386 @@
 +# SPDX-FileCopyrightText: no
 +# SPDX-License-Identifier: CC0-1.0
 +#
@@ -181,10 +181,10 @@ index 000000000..03c87deaa
 +# base groups of netinstall.yaml, the applications of the live ISO, the
 +# desktop chosen in packagechooser@desktop (hidden groups "XFCE" and
 +# "Openbox", selected by name) and optional software (one checkbox each,
-+# sorted in categories). The settings of the live ISO and of the desktop
-+# (/etc/skel, theme switcher, themes) are copied afterwards by
-+# shellprocess@live_config. Themes, icons, wallpapers and the Openbox
-+# desktop (packarch-openbox and its dependencies) come from the Packarch
++# sorted in categories). The settings of the live ISO common to both
++# desktops are copied afterwards by shellprocess@live_config. Themes, icons,
++# wallpapers and the desktop settings (packarch-xfce-settings or
++# packarch-openbox, and their dependencies) come from the Packarch
 +# repository.
 +---
 +groupsUrl: local
@@ -402,6 +402,8 @@ index 000000000..03c87deaa
 +  selected: false
 +  critical: true
 +  packages:
++    # Packarch repository: settings in /etc/skel and theme switcher
++    - packarch-xfce-settings
 +    - xfce4
 +    - xfce4-battery-plugin
 +    - xfce4-clipman-plugin
@@ -560,7 +562,7 @@ index 000000000..03c87deaa
 +          - orca
 diff --git a/src/modules/netinstall/netinstall_offline.conf b/src/modules/netinstall/netinstall_offline.conf
 new file mode 100644
-index 000000000..1f1d6d9ad
+index 000000000..7526b9ee5
 --- /dev/null
 +++ b/src/modules/netinstall/netinstall_offline.conf
 @@ -0,0 +1,82 @@
@@ -647,7 +649,7 @@ index 000000000..1f1d6d9ad
 +        packages:
 +          - deadpool
 diff --git a/src/modules/packagechooser/packagechooser_desktop.conf b/src/modules/packagechooser/packagechooser_desktop.conf
-index 510848616..7c5b8afb9 100644
+index 510848616..d90551a3e 100644
 --- a/src/modules/packagechooser/packagechooser_desktop.conf
 +++ b/src/modules/packagechooser/packagechooser_desktop.conf
 @@ -1,288 +1,26 @@
@@ -1037,16 +1039,17 @@ index bd7901f62..40d560de4 100644
  
 diff --git a/src/modules/shellprocess/shellprocess_live_config.conf b/src/modules/shellprocess/shellprocess_live_config.conf
 new file mode 100644
-index 000000000..c9214a305
+index 000000000..b82ea5ea0
 --- /dev/null
 +++ b/src/modules/shellprocess/shellprocess_live_config.conf
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,19 @@
 +# SPDX-FileCopyrightText: no
 +# SPDX-License-Identifier: CC0-1.0
 +#
 +# Online installation of the XFCE live ISO: once the packages are installed,
-+# copy the settings of the live ISO and of the chosen desktop (XFCE or
-+# Openbox) to the target (/etc/skel, theme switcher, GTK and icon themes),
++# copy the settings of the live ISO to the target (shells, Geany, SMPlayer,
++# LightDM, pacman hooks; the desktop settings come from packarch-xfce-settings
++# or packarch-openbox), set the session of the chosen desktop (XFCE or Openbox),
 +# install the stable Rust toolchain for the user when rustup is selected, and
 +# remove the local repository of the ISO from the target (attached by
 +# shellprocess@before-online). The scripts are shipped by the ISO (airootfs).

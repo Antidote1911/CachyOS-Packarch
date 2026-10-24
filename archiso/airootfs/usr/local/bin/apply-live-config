@@ -4,15 +4,12 @@
 # not chrooted) during the online installation, once the packages are
 # installed in ROOT and USER is created. Copies the settings of the live ISO
 # to the installed system, according to the desktop chosen in Calamares
-# (packagechooser@desktop, detected from the installed packages):
-#   - XFCE: /etc/skel (XFCE settings changed at build time, theme switcher
-#     state, SMPlayer, .xprofile...), copied to the user's home at the end by
-#     Calamares, without the live-only "Ajuster la résolution" panel launcher,
-#     and the theme switcher (/usr/share/xfcethemes)
-#   - Openbox: the XFCE-independent part of /etc/skel (shells, Geany,
-#     SMPlayer) next to the one of packarch-openbox, and Openbox as
-#     the default LightDM session
-# and for both desktops:
+# (packagechooser@desktop, detected from the installed packages). The
+# desktop settings are in /etc/skel of packarch-xfce-settings (XFCE settings,
+# theme switcher) or packarch-openbox; the live adds to it the
+# desktop-independent part of its /etc/skel (shells, Geany, SMPlayer), copied
+# to the user's home at the end by Calamares. With Openbox, it is also the
+# default LightDM session. For both desktops:
 #   - no screen blanking from the X server (xorg.conf.d/10-no-blanking.conf)
 #   - numeric keypad on at the LightDM login screen (40-numlock.conf)
 #   - a dark LightDM greeter: Greybird-dark, Luna-Red-Dark icons, Qogir-Dark
@@ -39,25 +36,16 @@ else
 fi
 echo "Desktop: $desktop"
 
-if [[ $desktop == xfce ]]; then
-    cp -a /etc/skel/. "$root/etc/skel/"
-    # Live only: "Ajuster la résolution" panel launcher (live-fit-display is
-    # not installed on the target)
-    sed -i -e '/<value type="int" value="31"\/>/d' \
-        -e '/<property name="plugin-31" type="string" value="launcher">/,/^    <\/property>/d' \
-        "$root/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
-    rm -rf "$root/etc/skel/.config/xfce4/panel/launcher-31"
-    cp -a /usr/share/xfcethemes "$root/usr/share/"
-else
-    # /etc/skel of packarch-openbox is kept: only what does not depend on XFCE
-    # (no xfce4, xfcethemes, .xprofile: xfsettingsd also runs under Openbox
-    # and would apply the XFCE settings)
-    for f in .bash_profile .bashrc .config/smplayer \
-        .config/geany/geany.conf; do
-        [[ -e "/etc/skel/$f" ]] || continue
-        mkdir -p "$root/etc/skel/$(dirname "$f")"
-        cp -a "/etc/skel/$f" "$root/etc/skel/$f"
-    done
+# Only what does not depend on the desktop: the live /etc/skel also holds
+# the XFCE settings of packarch-xfce-settings (already installed on the target
+# with XFCE; with Openbox, xfsettingsd also runs and would apply them) and the
+# live-only "Ajuster la résolution" panel launcher
+for f in .bash_profile .bashrc .config/smplayer .config/geany/geany.conf; do
+    [[ -e "/etc/skel/$f" ]] || continue
+    mkdir -p "$root/etc/skel/$(dirname "$f")"
+    cp -a "/etc/skel/$f" "$root/etc/skel/$f"
+done
+if [[ $desktop == openbox ]]; then
     install -d "$root/etc/lightdm/lightdm.conf.d"
     printf '[Seat:*]\nuser-session=openbox\n' \
         > "$root/etc/lightdm/lightdm.conf.d/60-default-session.conf"

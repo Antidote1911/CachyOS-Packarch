@@ -10,7 +10,7 @@ au choix **ce même bureau XFCE** ou **le bureau Openbox de Packarch**.
 1. [Reconstruire l'ISO](#1-reconstruire-liso)
 2. [Bureau : KDE Plasma remplacé par XFCE](#2-bureau--kde-plasma-remplacé-par-xfce)
 3. [Langue, clavier et fuseau horaire](#3-langue-clavier-et-fuseau-horaire)
-4. [Réglages XFCE du live](#4-réglages-xfce-du-live)
+4. [Réglages XFCE (`packarch-xfce-settings`)](#4-réglages-xfce-packarch-xfce-settings)
 5. [Sélecteur de thèmes](#5-sélecteur-de-thèmes)
 6. [Installeur Calamares](#6-installeur-calamares)
 7. [Liste des fichiers modifiés ou ajoutés](#7-liste-des-fichiers-modifiés-ou-ajoutés)
@@ -138,7 +138,7 @@ de GRUB retirée, entrée systemd-boot `02-archiso-linux-cachyos.conf` retirée
 
 | Rôle | Paquets |
 |---|---|
-| Bureau | `xfce4`, les extensions de `xfce4-goodies` **sauf** `parole`, `xfburn`, `xfce4-sensors-plugin` et `mousepad`, `thunar-archive-plugin`, `thunar-media-tags-plugin`, `cachyos-xfce-settings` (thème CachyOS pour XFCE, base de notre `/etc/skel` ; **live seulement** : le système installé reçoit le `/etc/skel` du live, et `qogir-icon-theme` à sa place) |
+| Bureau | `xfce4`, les extensions de `xfce4-goodies` **sauf** `parole`, `xfburn`, `xfce4-sensors-plugin` et `mousepad`, `thunar-archive-plugin`, `thunar-media-tags-plugin`, `packarch-xfce-settings` (réglages XFCE dans `/etc/skel` et sélecteur de thèmes, dépôt Packarch, au lieu de `cachyos-xfce-settings` : voir [section 4](#4-réglages-xfce-packarch-xfce-settings)) |
 | Affichage et connexion | `xorg-server`, `xf86-input-libinput`, `lightdm`, `lightdm-gtk-greeter`, `lightdm-gtk-greeter-settings` |
 | Remplaçants des outils KDE | `network-manager-applet`, `blueman`, `pavucontrol`, `polkit-gnome`, `gvfs`, `gvfs-mtp`, `gvfs-smb`, `file-roller`, `xarchiver`, `ristretto`, `catfish` (recherche de fichiers) |
 | Applications | `geany` (seul éditeur graphique, avec `nano` en console), `meld` (comparaison de fichiers), `smplayer`, `smplayer-skins`, `smplayer-themes` (et `mpv` en dépendance), `btop`, `yay` |
@@ -148,14 +148,14 @@ de GRUB retirée, entrée systemd-boot `02-archiso-linux-cachyos.conf` retirée
 `vim` n'est plus installé : `cachyos-zsh-config`, qui l'exigeait sans s'en
 servir, est remplacé par `packarch-zsh-config` (voir ci-dessous).
 
-`cachyos-xfce-settings` n'est pas installé sur le système installé : ses
-fichiers de `/etc/skel` y sont déjà (modifiés) par la copie du `/etc/skel` du
-live, et ses mises à jour les remplaceraient par ceux de CachyOS. De ses
-dépendances, seul `qogir-icon-theme` (curseur Qogir-Dark) est utile et pas déjà
-dans `netinstall_live.conf` : il y est ajouté (groupe commun aux deux
-bureaux). kvantum, qt5ct, les thèmes Nord et `char-white`, `capitaine-cursors`,
-`cachyos-alacritty-config`, `ttf-fantasque-nerd` et `ttf-fira-sans` ne sont
-plus installés (inutilisés par notre configuration).
+`cachyos-xfce-settings` n'est plus installé nulle part : `packarch-xfce-settings`
+le remplace sur le live et sur le système installé avec XFCE. Ses dépendances
+inutilisées par notre configuration ne sont donc plus installées : kvantum,
+qt5ct, les thèmes Nord et `char-white`, `capitaine-cursors`,
+`cachyos-alacritty-config`, `ttf-fantasque-nerd` et `ttf-fira-sans`.
+`qogir-icon-theme` (curseur Qogir-Dark) reste, en dépendance de
+`packarch-xfce-settings` et dans le groupe commun aux deux bureaux de
+`netinstall_live.conf`.
 
 **Shell par défaut : zsh** avec la configuration de `cachyos-zsh-config` (oh-my-zsh,
 powerlevel10k, autosuggestions, coloration syntaxique), sur le live comme sur le
@@ -164,7 +164,7 @@ mêmes fichiers, renommés (`/etc/skel/.zshrc`,
 `/usr/share/packarch-zsh-config/packarch-config.zsh` au lieu de
 `/usr/share/cachyos-zsh-config/cachyos-config.zsh`, depuis 1.0.3-3) et mêmes
 dépendances, sauf `vim`, dont elle ne se sert pas ; il fournit
-`cachyos-zsh-config`, exigé par `cachyos-xfce-settings` sur le live :
+`cachyos-zsh-config` (qu'exigeait `cachyos-xfce-settings`) :
 
 - live : `packarch-zsh-config` ajouté à `packages_desktop.x86_64` (son
   `/etc/skel/.zshrc` est copié dans `/home/liveuser` par mkarchiso),
@@ -223,20 +223,37 @@ installé par `removeun` et `removeun-online`).
 
 ---
 
-## 4. Réglages XFCE du live
+## 4. Réglages XFCE (`packarch-xfce-settings`)
 
-### Pourquoi un hook pacman
+### Le paquet
 
-`mkarchiso` copie `airootfs` **avant** d'installer les paquets : un fichier de
-`airootfs` qui existe aussi dans un paquet fait échouer le build. Or
-`cachyos-xfce-settings` fournit déjà ses réglages dans `/etc/skel`. Ils sont donc
-modifiés **après** l'installation des paquets par
-`etc/pacman.d/hooks/80-cachyos-live-xfce-skel.hook`, qui lance
-`80-cachyos-live-xfce-skel.sh` (même méthode que l'ancien hook KWin). Les deux
-fichiers contiennent `remove from airootfs!` : le hook d'origine
-`zzzz99-remove-custom-hooks-from-airootfs.hook` les retire de l'ISO à la fin.
+Les réglages XFCE sont dans le paquet `packarch-xfce-settings` du dépôt
+Packarch (sources : `myrepo-pkgs/packarch-xfce-settings`), installé sur le live
+et, avec XFCE, sur le système installé. C'est `cachyos-xfce-settings` 1.0.9
+(`/etc/skel` et GSettings) avec nos modifications déjà faites, plus le
+sélecteur de thèmes ([section 5](#5-sélecteur-de-thèmes)) : il le remplace
+(`replaces`/`conflicts`). Il est en conflit avec `packarch-openbox` (les deux
+fournissent des fichiers de `/etc/skel` : GTK, Thunar, xfconf) ; un système
+installé a l'un ou l'autre.
 
-### Ce que fait le hook
+Jusqu'au 2026-10-24, l'ISO installait `cachyos-xfce-settings` et un hook pacman
+modifiait ses fichiers au build (`sed` sur les fichiers de CachyOS : un
+changement de leur part pouvait annuler un réglage sans erreur), puis
+`apply-live-config` copiait tout le `/etc/skel` du live sur le système
+installé. Les fichiers du paquet ont été vérifiés identiques au `/etc/skel` du
+live construit avant ce changement, hors bouton « Ajuster la résolution » et
+nettoyage ci-dessous.
+
+**Hook du live** : `mkarchiso` copie `airootfs` **avant** d'installer les
+paquets, et un fichier de `airootfs` qui existe aussi dans un paquet fait
+échouer le build. Le seul réglage propre au live, le bouton « Ajuster la
+résolution », est donc ajouté au `xfce4-panel.xml` du paquet après son
+installation par `etc/pacman.d/hooks/80-live-xfce-skel.hook`, qui lance
+`80-live-xfce-skel.sh`. Les deux fichiers contiennent `remove from airootfs!` :
+le hook d'origine `zzzz99-remove-custom-hooks-from-airootfs.hook` les retire
+de l'ISO à la fin.
+
+### Modifications par rapport à `cachyos-xfce-settings`
 
 - **Pas de verrouillage ni de mise en veille** : `xfce4-power-manager.xml`
   (écran jamais éteint, ordinateur jamais mis en veille, pas de verrouillage à
@@ -271,17 +288,27 @@ fichiers contiennent `remove from airootfs!` : le hook d'origine
   thèmes d'icônes) remplacée par `org.xfce.thunar`.
 - **Bouton du sélecteur de thèmes** : lanceur `plugin-30` ajouté après le
   moniteur système, avec « default » en première entrée.
-- **Bouton « Ajuster la résolution » (live seulement)** : lanceur `plugin-31`
-  (`launcher-31/live-fit-display.desktop`, dans `airootfs/etc/skel`) après le
-  sélecteur de thèmes. Il lance `/usr/local/bin/live-fit-display`
-  (`xrandr --output <écran> --auto`) : dans une machine virtuelle, applique la
-  taille de la fenêtre, que XFCE n'applique pas tout seul. `apply-live-config`
-  le retire du `/etc/skel` du système installé, où le script n'existe pas.
+- **Bouton « Ajuster la résolution » (live seulement, hook du live)** :
+  lanceur `plugin-31` (`launcher-31/live-fit-display.desktop`, dans
+  `airootfs/etc/skel`) après le sélecteur de thèmes. Il lance
+  `/usr/local/bin/live-fit-display` (`xrandr --output <écran> --auto`) : dans
+  une machine virtuelle, applique la taille de la fenêtre, que XFCE n'applique
+  pas tout seul. Absent du système installé, où le script n'existe pas.
 - **Thème « default » dès le démarrage** : `xsettings.xml` (thème GTK
   `Arc-Dark`, icônes `Luna-Purple-Dark`, curseur `Qogir-Dark` au lieu de
   `capitaine-cursors`), `xfwm4.xml` (bordures `Arc-Dark`),
   `xfce4-desktop.xml` (fond `default.png`), couleurs du terminal ajoutées à
   `terminalrc` (xfce4-terminal les importe dans xfconf au premier lancement).
+  Mêmes valeurs dans `.gtkrc-2.0`, `gtk-3.0/settings.ini`,
+  `gtk-4.0/settings.ini`, `.icons/default/index.theme` (curseur) et la
+  surcharge GSettings `25_packarch-xfce-settings.gschema.override` (au lieu du
+  thème `cachyos-nord`, des icônes `Qogir` et de `capitaine-cursors`).
+- **Retirés** : réglages de qt5ct et Kvantum (`QT_QPA_PLATFORMTHEME=qt5ct` de
+  `.profile` compris : les applications Qt prennent le thème GTK), démarrage
+  automatique d'Octopi Notifier (aucun des trois n'est installé) ;
+  `BROWSER=firefox` dans `.profile` au lieu de `cachy-browser`. Le script
+  d'installation de `cachyos-xfce-settings` (greeter LightDM `cachyos-nord`)
+  n'est pas repris : le greeter est réglé par `apply-live-config`.
 - **Curseur `Qogir-Dark`** (fourni par `qogir-icon-theme`) : le sélecteur de
   thèmes ne le change pas.
 - **Greeter LightDM sombre** (système installé, XFCE et Openbox) :
@@ -293,14 +320,24 @@ fichiers contiennent `remove from airootfs!` : le hook d'origine
   `xfce4-keyboard-shortcuts.xml`) lancent LilouCalc à la place.
 - **Pavé numérique activé** : `keyboards.xml`, `Numlock` à `true`.
 
-### Fichiers ajoutés directement dans `etc/skel`
-
-(aucun paquet ne les fournit, donc pas de conflit)
+### Fichiers ajoutés par le paquet
 
 - `.config/xfce4/xfconf/xfce-perchannel-xml/thunar-volman.xml` : pas de montage
   ni d'ouverture automatiques des disques.
 - `.config/xfce4/panel/launcher-30/theme-*.desktop` : les 7 entrées du bouton de
   thèmes.
+- `.config/xfcethemes/` : `.current_theme` (`default`) et des liens vers le
+  script et les icônes de `/usr/share/xfcethemes`.
+- `.xprofile` : lance `init-backdrop.sh` (voir ci-dessous).
+
+### Fichiers ajoutés directement dans `airootfs/etc/skel`
+
+(aucun paquet ne les fournit, donc pas de conflit ; `apply-live-config` les
+copie sur le système installé, XFCE ou Openbox, sauf le bouton du live)
+
+- `.config/xfce4/panel/launcher-31/live-fit-display.desktop` : bouton
+  « Ajuster la résolution » du live.
+- `.bashrc`, `.bash_profile`.
 - `.config/smplayer/smplayer.ini` : interface personnalisée (`gui=SkinGUI`),
   thème `Black`, style Qt `Fusion`, lecteur `mpv`.
 - `.config/geany/geany.conf` : réglages de Geany (police JetBrainsMono Nerd
@@ -308,16 +345,13 @@ fichiers contiennent `remove from airootfs!` : le hook d'origine
   personnelle, nom et adresse des modèles (`pref_template_*`) vidés, terminal
   `xfce4-terminal` au lieu de `xterm`. La police vient de
   `ttf-jetbrains-mono-nerd`, ajouté à l'ISO et à l'installation.
-- `.config/xfcethemes/` : `.current_theme` (`default`) et des liens vers le
-  script et les icônes de `/usr/share/xfcethemes`.
-- `.xprofile` : lance `init-backdrop.sh` (voir ci-dessous).
 
 ---
 
 ## 5. Sélecteur de thèmes
 
 Repris de `~/.config/xfcethemes/` de l'auteur et installé pour tous les
-utilisateurs dans `archiso/airootfs/usr/share/xfcethemes/` :
+utilisateurs dans `/usr/share/xfcethemes/` par `packarch-xfce-settings` :
 
 - `theme-switcher.sh --<thème>` (`blue`, `gray`, `green`, `purple`, `red`,
   `yellow`, `default`) : applique fond d'écran aléatoire du thème, thème GTK,
@@ -422,7 +456,7 @@ notre Calamares plutôt que l'officiel.
   - deux groupes cachés **`XFCE`** et **`Openbox`**, décochés : la page
     « Bureau » coche celui dont le nom est l'identifiant du choix (méthode
     `netinstall-select`). `XFCE` contient le bureau du live (mêmes paquets que
-    l'ISO, dont les thèmes du sélecteur) ; `Openbox` contient
+    l'ISO, dont `packarch-xfce-settings` : réglages et sélecteur de thèmes) ; `Openbox` contient
     `packarch-openbox`, les greffons Thunar et les thèmes GTK/icônes Packarch
     des thèmes Openbox. Calamares ne savait pas cocher un groupe **caché**
     par son nom (ces groupes ne sont pas dans l'arbre parcouru) :
@@ -442,14 +476,14 @@ notre Calamares plutôt que l'officiel.
 - **`shellprocess@live_config`**, après l'installation des paquets : lance
   `/usr/local/bin/apply-live-config` (fourni par l'ISO). Il reconnaît le bureau
   choisi aux paquets installés (`openbox` sans `xfce4-session` : Openbox).
-  **XFCE** : il copie depuis le live vers le système installé `/etc/skel`
-  (tous les réglages XFCE ci-dessus) et `/usr/share/xfcethemes`.
-  **Openbox** : il garde le `/etc/skel` de `packarch-openbox` et n'y ajoute que
-  ce qui ne dépend pas de XFCE (`.bashrc`, `.bash_profile`,
-  `geany.conf`, SMPlayer), car `xfsettingsd` tourne aussi sous Openbox et
-  appliquerait les réglages XFCE ; il fait d'Openbox la session par défaut de
-  LightDM (`lightdm.conf.d/60-default-session.conf`). Dans les deux cas, il
-  copie les thèmes GTK/icônes qui n'appartiennent à aucun paquet, ainsi que `/etc/X11/xorg.conf.d/10-no-blanking.conf`, `/etc/lightdm/lightdm.conf.d/40-numlock.conf` et les hooks
+  Les réglages du bureau viennent de son paquet (`packarch-xfce-settings` ou
+  `packarch-openbox`) ; il n'ajoute à leur `/etc/skel` que ce qui ne dépend pas
+  du bureau (`.bashrc`, `.bash_profile`, `geany.conf`, SMPlayer) : le
+  `/etc/skel` du live contient aussi les réglages XFCE, que `xfsettingsd`
+  appliquerait sous Openbox, et le bouton propre au live. Avec **Openbox**, il
+  en fait la session par défaut de LightDM
+  (`lightdm.conf.d/60-default-session.conf`). Dans les deux cas, il copie
+  `/etc/X11/xorg.conf.d/10-no-blanking.conf`, `/etc/lightdm/lightdm.conf.d/40-numlock.conf` et les hooks
   `90-geany-new-instance.hook` et `90-hide-desktop-entries.hook` (qu'il applique aussi tout de suite). Il crée aussi `/etc/sudoers.d/90-wheel-nopasswd`
   (`%wheel  ALL=(ALL) NOPASSWD: ALL`) : **`sudo` sans mot de passe** sur le
   système installé. Le nom en `90-` le fait lire après le `10-installer` de
@@ -681,7 +715,7 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `archiso/grub/`, `archiso/syslinux/`, `archiso/efiboot/`, `airootfs/etc/mkinitcpio.d/linux.preset` | `linux-cachyos` seul |
 | `archiso/airootfs/etc/passwd` | zsh pour `root` et `liveuser` |
 | `archiso/airootfs/root/.zshrc` | ajouté (configuration zsh CachyOS pour root) |
-| `archiso/profiledef.sh` | permissions 755 de `cleanup-live-iso`, `apply-live-config`, `live-fit-display`, `github-setup`, `hide-desktop-entries`, `theme-switcher.sh`, `init-backdrop.sh` |
+| `archiso/profiledef.sh` | permissions 755 de `cleanup-live-iso`, `apply-live-config`, `live-fit-display`, `github-setup`, `hide-desktop-entries` |
 | `archiso/airootfs/etc/locale.conf`, `locale.gen`, `vconsole.conf`, `localtime`, `X11/xorg.conf.d/00-keyboard.conf` | français, `Europe/Paris` |
 | `archiso/airootfs/etc/lightdm/lightdm.conf.d/50-cachyos-live.conf` | ajouté (connexion automatique) |
 | `archiso/airootfs/etc/X11/xorg.conf.d/10-no-blanking.conf` | ajouté (pas d'extinction de l'écran) |
@@ -689,12 +723,11 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `archiso/airootfs/etc/pacman.d/hooks/40-cachyos-live-locale-gen.hook` | ajouté |
 | `archiso/airootfs/etc/pacman.d/hooks/90-geany-new-instance.hook` | ajouté (Geany en nouvelle instance) |
 | `archiso/airootfs/etc/pacman.d/hooks/90-hide-desktop-entries.hook`, `usr/local/bin/hide-desktop-entries` | ajoutés (entrées cachées des menus) |
-| `archiso/airootfs/etc/pacman.d/hooks/80-cachyos-live-xfce-skel.hook` et `.sh` | ajoutés |
+| `archiso/airootfs/etc/pacman.d/hooks/80-live-xfce-skel.hook` et `.sh` | ajoutés (bouton du live ; `80-cachyos-live-xfce-skel` jusqu'au 2026-10-24) |
 | `archiso/airootfs/etc/pacman.d/hooks/90-cachyos-live-kwin-keyboard.hook` | supprimé |
 | `archiso/airootfs/etc/plasmalogin.conf`, `plasmalogin.conf.d/` | supprimés |
 | `archiso/airootfs/etc/skel/.config/` (réglages KDE) | supprimés |
-| `archiso/airootfs/etc/skel/.config/xfce4/…`, `smplayer/`, `geany/`, `xfcethemes/`, `.xprofile` | ajoutés |
-| `archiso/airootfs/usr/share/xfcethemes/` | ajouté (sélecteur de thèmes) |
+| `archiso/airootfs/etc/skel/.config/xfce4/panel/launcher-31/`, `smplayer/`, `geany/`, `.bashrc`, `.bash_profile` | ajoutés (le reste des réglages XFCE et le sélecteur de thèmes sont dans `packarch-xfce-settings`) |
 | `archiso/pacman.conf` | dépôt `[packarch]` (build) |
 | `archiso/airootfs/etc/pacman.conf`, `etc/pacman-more.conf` | dépôt `[packarch]` |
 | `archiso/airootfs/etc/pacman.d/packarch-mirrorlist` | ajouté |

@@ -39,6 +39,4 @@ file_permissions=(
   ["/usr/local/bin/live-fit-display"]="0:0:755"
   ["/usr/local/bin/github-setup"]="0:0:755"
   ["/usr/local/bin/hide-desktop-entries"]="0:0:755"
-  ["/usr/share/xfcethemes/theme-switcher.sh"]="0:0:755"
-  ["/usr/share/xfcethemes/init-backdrop.sh"]="0:0:755"
 )

@@ -1,0 +1,13 @@
+# remove from airootfs!
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = packarch-xfce-settings
+
+[Action]
+Description = Adding the live-only "Ajuster la résolution" panel launcher...
+When = PostTransaction
+Depends = sh
+Depends = sed
+Exec = /bin/sh /etc/pacman.d/hooks/80-live-xfce-skel.sh
