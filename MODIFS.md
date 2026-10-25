@@ -89,6 +89,33 @@ les variables UEFI. L'affichage utilise `virtio-vga` **sans accélération 3D**
 1600×900 au démarrage, l'image étant adaptée à la taille de la fenêtre ; dans
 le live, le bouton « Ajuster la résolution » applique la taille de la fenêtre.
 
+### Personnaliser les thèmes Openbox dans la VM
+
+`run.sh` redirige le port 2222 de l'hôte (127.0.0.1 seulement) vers le SSH de
+la VM. `vm-themes.sh` échange par ce biais les thèmes
+(`~/.config/openbox/themes`) entre la VM et les sources de `packarch-openbox`
+(`../myrepo-pkgs`) :
+
+```bash
+# une fois par installation, dans la VM :
+#   sudo systemctl enable --now sshd && sudo ufw allow ssh
+./vm-themes.sh setup UTILISATEUR   # copie la clé SSH (mot de passe demandé une fois)
+./vm-themes.sh push [THÈME]        # sources → VM, puis applique le thème
+./vm-themes.sh pull                # VM → vm-test/themes, affiche ce qui a changé
+./vm-themes.sh ssh [COMMANDE]      # shell ou commande dans la session de la VM
+```
+
+`push` remplace les dossiers de thèmes de la VM (les fichiers propres à la VM
+restent : `.current`, `.panel`, `.applied`, `.system`, `system.ini`), retire
+leurs marqueurs `polybar/.module` pour que `packarch-skin` refasse la
+détection du matériel, applique le thème puis enregistre l'état obtenu comme
+référence (`vm-test/themes-base`). `pull` n'affiche que ce qui a changé dans la
+VM depuis cette référence, sans `colors.ini` ni `colors.rasi` (régénérés par
+`packarch-skin` : les couleurs se changent dans `theme.toml`). Les
+modifications sont ensuite reportées à la main dans les sources : le
+`config.ini` de la VM est adapté à son matériel (`ethernet`, pas de batterie
+ni de luminosité), il ne doit pas être recopié tel quel.
+
 ### Nettoyer le projet
 
 ```bash
@@ -216,7 +243,7 @@ installé par `removeun` et `removeun-online`).
 | `etc/locale.gen` | `fr_FR.UTF-8` et `en_US.UTF-8` |
 | `etc/pacman.d/hooks/40-cachyos-live-locale-gen.hook` | lance `locale-gen` pendant le build |
 | `/usr/share/libalpm/hooks/90-packarch-geany-new-instance.hook` (`packarch-system-settings`) | `geany.desktop` lance `geany -i %F` : une nouvelle instance à chaque ouverture ; réappliqué à chaque mise à jour de `geany` (live et système installé) |
-| `/usr/share/libalpm/hooks/90-packarch-hide-desktop-entries.hook` + `/usr/bin/packarch-hide-desktop-entries` (`packarch-system-settings`) | ajoute `NoDisplay=true` (entrée cachée des menus XFCE et rofi, mais toujours utilisable comme application par défaut) à « À propos de Xfce » (`xfce4-about`), « Émulateur de terminal », « Lecteur de courriels », « Navigateur web » (`xfce4-terminal-emulator`, `xfce4-mail-reader`, `xfce4-web-browser`), Plank, mpv, Qt V4L2 test/video (`qv4l2`, `qvidcap`), Rofi, Rofi Theme Selector et Icon Browser (`yad-icon-browser` : yad reste installé, les menus Openbox s’en servent) ; réappliqué à chaque mise à jour des paquets concernés et à l'installation de `packarch-system-settings` (live et système installé, XFCE et Openbox) |
+| `/usr/share/libalpm/hooks/90-packarch-hide-desktop-entries.hook` + `/usr/bin/packarch-hide-desktop-entries` (`packarch-system-settings`) | ajoute `NoDisplay=true` (entrée cachée des menus XFCE et rofi, mais toujours utilisable comme application par défaut) à « À propos de Xfce » (`xfce4-about`), « Émulateur de terminal », « Lecteur de courriels », « Navigateur web » (`xfce4-terminal-emulator`, `xfce4-mail-reader`, `xfce4-web-browser`), mpv, Qt V4L2 test/video (`qv4l2`, `qvidcap`), Rofi, Rofi Theme Selector et Icon Browser (`yad-icon-browser` : yad reste installé, les menus Openbox s’en servent) ; réappliqué à chaque mise à jour des paquets concernés et à l'installation de `packarch-system-settings` (live et système installé, XFCE et Openbox) |
 | `etc/vconsole.conf` | `KEYMAP=fr-latin9` (consoles texte) |
 | `etc/X11/xorg.conf.d/00-keyboard.conf` | `XkbLayout fr` (LightDM et XFCE) |
 | `etc/localtime` | lien vers `Europe/Paris` (avant : `UTC`) |
@@ -314,13 +341,15 @@ de l'ISO à la fin.
 - **Greeter LightDM sombre** (XFCE et Openbox) : `packarch-system-settings`
   règle dans `/usr/share/lightdm/lightdm-gtk-greeter.conf.d/50-packarch.conf`
   le thème GTK `Greybird-dark` (`packarch-themes`), les icônes `Luna-Red-Dark`
-  (`packarch-icons`) et le curseur `Qogir-Dark` (`qogir-icon-theme`). Le
+  (`packarch-icons`), le curseur `Qogir-Dark` (`qogir-icon-theme`) et le fond
+  `/usr/share/backgrounds/wallpaper-alt.png` (`packarch-backgrounds` ;
+  `packarch-system-settings` 1.0-3). Le
   greeter lit ce dossier avant `/etc/lightdm/lightdm-gtk-greeter.conf`, dont
   tous les réglages sont commentés : plus de `sed` sur ce fichier.
 - **cachy-update toujours installé** (XFCE et Openbox) : dépendance de
   `packarch-system-settings` (1.0-2). Son applet démarre à chaque session
   (`/etc/xdg/autostart/arch-update-tray.desktop` du paquet ; sous Openbox,
-  `snixembed` de `packarch-openbox` l'affiche dans polybar ou tint2) et la
+  `snixembed` de `packarch-openbox` l'affiche dans polybar) et la
   vérification quotidienne des mises à jour (`arch-update.timer`) est activée
   pour tous les utilisateurs par
   `/usr/lib/systemd/user/timers.target.wants/arch-update.timer`.
@@ -559,7 +588,7 @@ retire `/etc/xdg/calamares` du système installé.
 
 Le choix « Openbox » installe `packarch-openbox` depuis [packarch] (sources :
 [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs), licence GPL3) :
-polybar ou tint2, menus rofi, dunst, plank, picom, kitty et 15 thèmes, changés depuis
+polybar, menus rofi, dunst, picom, kitty et 10 thèmes, changés depuis
 le menu du bureau. La configuration est reprise de la version GPL3 de la
 configuration Openbox d'Aditya Shakya (7.0-9) ; la version premium (licence
 DBAD : 15 thèmes de plus et la fonction « Changer les couleurs ») n'est plus
@@ -575,21 +604,21 @@ supprimées.
 
 **Sélecteur de thèmes `packarch-skin`** (Rust, sources dans
 `myrepo-pkgs/packarch-skin`) : chaque thème est un dossier de
-`~/.config/openbox/themes` avec ses dispositions (`polybar/`, `rofi/`, `tint2/`)
+`~/.config/openbox/themes` avec ses dispositions (`polybar/`, `rofi/`)
 et un `theme.toml` qui le décrit : fond d'écran (`wallpaper =
 "/usr/share/backgrounds/…"`, chemin réel au lieu du lien `wallpaper` du
 dossier depuis packarch-openbox 7.0-25 ; changer le fond d'un thème = changer
 cette ligne), couleurs
 (valeurs, références à d'autres couleurs, `lighten()`/`darken()`), rôles des
 couleurs dans la barre, rofi et dunst, polices, thèmes GTK/icônes/curseur,
-thème et marges d'Openbox, dunst, plank, picom. Il remplace les scripts
+thème et marges d'Openbox, dunst, picom. Il remplace les scripts
 `theme.bash`, `apply.sh` (un par thème), `launch-bar.sh`, `polybar.sh`,
-`tint2.sh` et `polybar/launch.sh` :
+`tint2.sh` (tint2 retiré depuis) et `polybar/launch.sh` :
 
 | Commande | Effet |
 |---|---|
-| `packarch-skin apply [THÈME]` | applique un thème (par défaut le courant) : fichiers de couleurs de polybar et rofi, kitty, Geany, GTK (xfconf, gsettings), `rc.xml` d'Openbox, dunst, plank (dconf), picom, fond d'écran (nitrogen), puis relance la barre |
-| `packarch-skin bar [polybar\|tint2]` | relance la barre du thème courant, et change de barre si on en donne une (retenue dans `themes/.panel`, polybar par défaut) ; détecte au premier lancement de polybar la batterie, l'adaptateur, le rétroéclairage et l'interface réseau (`/sys`) |
+| `packarch-skin apply [THÈME]` | applique un thème (par défaut le courant) : fichiers de couleurs de polybar et rofi, kitty, Geany, GTK (xfconf, gsettings), `rc.xml` d'Openbox, dunst, picom, fond d'écran (nitrogen), puis relance la barre |
+| `packarch-skin bar` | relance les barres polybar du thème courant (`bars` de `[polybar]` dans `theme.toml`, `main` par défaut) ; détecte au premier lancement de polybar la batterie, l'adaptateur, le rétroéclairage et l'interface réseau (`/sys`) |
 | `packarch-skin list`, `current`, `wallpaper`, `check` | thèmes, thème courant, fond d'écran, vérification des `theme.toml` |
 | `packarch-skin openbox-menu` | menu « Changer de style » d'Openbox |
 
@@ -607,7 +636,7 @@ Modifications de la configuration d'origine :
   (famille renommée dans le fichier). Les mentions d'auteur (Aditya Shakya)
   sont conservées ;
 - **thèmes appliqués par `packarch-skin`** (ci-dessus) ;
-- **kitty seul terminal** (raccourcis, menus, dock plank, polybar,
+- **kitty seul terminal** (raccourcis, menus, polybar,
   `networkmanager-dmenu`, obmenu-generator, `ob-music`, `ob-furminal`,
   « Ouvrir un terminal ici » de Thunar) : alacritty et xfce4-terminal ne sont
   plus installés, le menu « Couleurs du terminal » (schémas d'alacritty) est
@@ -621,23 +650,27 @@ Modifications de la configuration d'origine :
 - **nano au lieu de vim, plus de ranger** : Ctrl+Alt+V ouvre nano dans
   kitty (plus d'entrée nano dans « Applications en root » depuis 7.0-18) ;
   ranger (Ctrl+Alt+R, menu root) retiré ;
-- **Plank toujours accessible** : `hide_mode = "intelligent"` dans les 15
-  thèmes (avant : `auto` sauf default et nord, dock toujours caché, souvent
-  sur le bord droit) ; visible tant qu'aucune fenêtre ne le recouvre, donc les
-  fenêtres réduites restent visibles (7.0-18) ;
+- **plus de dock plank** (7.0-29, `packarch-skin` 1.0.0-7) : dépendance
+  `plank` retirée, plus de lancement dans l'`autostart`, section `[plank]`
+  retirée des 15 `theme.toml` (`packarch-skin` l'ignore encore dans les
+  thèmes déjà copiés dans un `~/.config`), lanceurs `~/.config/plank`
+  supprimés, règles `Plank` de `picom.conf` et de polywins retirées ; les
+  dossiers `plank/` des thèmes GTK de `packarch-themes` (2.0-3) et l'entrée
+  `plank.desktop` de `packarch-hide-desktop-entries` (`packarch-system-settings`)
+  aussi ;
 - **Menu « Glyphes » aligné** : la police des éléments de menu est
   « police du thème,feather » (`rc.xml`, `packarch-skin` 1.0.0-3, menu
   « Changer de police ») : les codes des glyphes existent aussi dans d'autres
   polices d'icônes, de largeurs différentes ; « Favoris Internet » utilise le
   signet de feather au lieu du globe Font Awesome (7.0-19) ;
-- **tint2** : retiré en 7.0-15 puis rétabli en 7.0-21 (`packarch-skin`
-  1.0.0-4) : dispositions `tint2/` des thèmes, scripts `tint2-*`, dépendance,
-  menu « Panneau / Barre » pour passer de polybar à tint2 ; lanceur kitty au
-  lieu d'alacritty, bouton `distributor-logo-archlinux` au lieu du logo des
-  illustrations supprimées ;
+- **plus de tint2** (retiré en 7.0-15, rétabli en 7.0-21, retiré à nouveau
+  en 7.0-30 avec `packarch-skin` 1.0.0-8) : dépendance, dispositions `tint2/`
+  des thèmes, scripts `tint2-*`, menu « Panneau / Barre » (`pa-panel`),
+  applets prévus pour tint2 (commentés) dans l'`autostart`, règles picom ;
+  `packarch-skin bar` ne prend plus d'argument et ignore `themes/.panel` ;
 - **icônes StatusNotifierItem dans la zone de notification** (7.0-23) :
   `snixembed` (dépendance, lancé par `autostart` avant la barre) les affiche
-  dans la zone XEmbed de polybar et tint2, qui ne connaissent pas ce protocole
+  dans la zone XEmbed de polybar, qui ne connaît pas ce protocole
   (applet de `cachy-update`, par exemple) ;
 - **kitty pour les applications `Terminal=true`** (7.0-24) : GLib ne connaît
   pas kitty (il essaie xdg-terminal-exec, gnome-terminal, xfce4-terminal,
@@ -648,6 +681,93 @@ Modifications de la configuration d'origine :
   `wallpaper-alt.png`, icônes Luna-Antidote-Dark (aussi dans rofi), curseur
   Pear-Dark et thème Openbox OB-Nordic, au lieu de `default.jpg`, Zafiro,
   Qogirr et OB-Arc-Dark (seul son `theme.toml` change) ;
+- **droite de la barre du thème `default` réordonnée** (7.0-29), de droite
+  à gauche : extinction, heure, zone de notification, volume, réseau
+  (bluetooth juste à sa gauche), batterie, luminosité ;
+- **barre du thème `adaptive`** (7.0-29) : polywins au centre (sur le fond de
+  la barre, `polywins = true` dans son `theme.toml`), modules `cpu`, `memory`
+  et `filesystem` retirés à gauche (nouvelle transition `6LD` après
+  `openbox`), bouton d'extinction tout à droite, après la zone de
+  notification ;
+- **bouton d'extinction tout à droite dans le thème `nord`** (7.0-29) :
+  module `sysmenu` ajouté (icône rouge, `rofi-powermenu`) ; dans `beach`, mis
+  à droite en 7.0-29 puis retiré de la barre en 7.0-30 ;
+- **thèmes réglés dans la VM** (7.0-30, avec `vm-themes.sh`) :
+  - liste des fenêtres (polywins) au centre de `pink-city`
+    (encadrée `LD … RD`) et dans la barre du bas de `yellow-flower` et
+    `default` (en haut au centre pour `default`) ; `polywins = true` dans leur
+    `theme.toml` (couleurs du thème écrites par `packarch-skin`) ;
+  - `adaptive` : marge autour du bouton d'extinction ;
+  - icône du bouton d'extinction de `nord`, `beach` et `rainy` : `\uf011` au
+    lieu de `\uf924` (ancienne numérotation de Nerd Fonts, absente de la
+    police installée : bouton invisible) ;
+  - `red` renommé **`pink-city`** (« Pink City ») : icônes `Qogir-Pink-Dark`
+    (GTK et rofi, voir `packarch-icons`) ;
+  - `slime` renommé **`yellow-flower`** (« Yellow Flower ») : thème GTK
+    Juno-Mirage, OB-Juno-Mirage, icônes Luna-Dark, fond `bouquet.jpg`,
+    couleurs Ayu Mirage (accent `#ffcc66`), Geany `bouquet.conf`, menu
+    Openbox à icônes, boutons de fenêtre `LIMC` (fermer à droite), icônes de
+    la barre agrandies (Symbols Nerd Font 15, `packarch` 17) ;
+  - seconde barre en bas dans `yellow-flower` et `default` (`bars = ["main",
+    "bottom"]`, marge du bas d'Openbox agrandie) : menu d'applications et
+    lanceurs Firefox, Thunar, kitty à gauche (clic droit : Gmail dans
+    Firefox, Thunar et kitty en root par `ob-asroot`, mot de passe demandé
+    par `rofi-askpass`), heure au centre ; volume à droite, et bouton
+    d'extinction en bas (`yellow-flower`) ou en haut à droite (`default`) ;
+  - `manhattan` renommé **`packarch`** (« Packarch ») : couleurs du fond `packarch-default.jpg` (anthracite,
+    jaune Pac-Man `#f8c602`, couleurs des fantômes pour le terminal), icônes
+    Luna-Antidote-Dark ; thème GTK **Manhattan modifié** (`packarch-themes`
+    2.0-4) : sélections et cases à cocher orange `#f7901e` au lieu du lilas
+    `#b4a1db`, CSS et images GTK2 (aussi pour `pink-city`, qui l'utilise ; le thème GTK garde son nom) ;
+    barre ajoutée en haut (polywins, bouton d'extinction ; marge du haut
+    d'Openbox agrandie), lanceurs au centre de la barre du bas (sans menu
+    d'applications), bureaux à gauche, date et heure complètes en haut au
+    centre, menu d'extinction rofi en haut à droite ;
+  - `hack` renommé **`hacking`** (« Hacking ») : lanceurs dans la barre du bas, réseau et bluetooth à gauche,
+    bureaux après le menu (icône seule, sans « Programmes »), polywins au
+    centre de la barre du haut (couleurs fixées dans le script,
+    `polywins = false` : les rôles de la barre rendaient la fenêtre active la
+    plus sombre), boutons réduire et agrandir (`LIMC`) ;
+  - `red-satanic` : thème Openbox OB-Kripton, date et heure complètes au
+    centre de la barre du bas, sans processeur, mémoire ni disque ;
+  - nouveau thème **`pink-sylvanas`** (« Pink Sylvanas ») : copie de `default` (deux
+    barres), fond `sylvanas.jpg` (ajouté à `packarch-backgrounds` 2.0-4),
+    couleurs du fond (noir violacé `#1a161c`, argent `#c3c5cd`, mauve, rouge
+    des yeux `#d0283c` en accent, teal de la gemme), GTK et Openbox
+    Catppuccin-Mocha, icônes Luna-Purple-Dark, Geany `catppuccin-mocha.conf` ;
+  - nouveau thème **`cyberpunk`** (« Cyberpunk ») : copie de `default` (deux
+    barres), thème GTK Sweet-Dark, OB-Sweet-Dark, icônes BeautyLine (`aur/beautyline`,
+    dépendance de `packarch-icons`), palette sombre de Sweet (fond
+    `#161925`, accent magenta `#c74ded`), fond `cyberpunk1.jpg`, Geany
+    `dracula.conf` ;
+  - thèmes **`wave`, `gray`, `forest`, `kiss`, `easy`, `rainy`, `nord` et
+    `beach` supprimés** ;
+- **4 bureaux au lieu de 5** (7.0-30) : `rc.xml` (`<number>`, noms,
+  raccourcis Super+5 et Super+Maj+5 retirés) et icône du 5e bureau
+  (`icon-4`) retirée du module des bureaux des 11 thèmes, comme les 4
+  espaces de travail de XFCE ;
+  - nouveau thème **`red-satanic`** (« Red Satanic ») : copie de
+    `default` (deux barres), fond `satanic.jpg`, thème GTK `Satanic`,
+    thème Openbox `OB-Kripton`, icônes Luna-Red-Dark, couleurs noir et rouge sang (accent
+    `#e01b24`, ambre `#e0a030` des yeux du fond), Geany `red-satanic.conf`
+    (copie de Black Scheme sur le fond `#131519` des barres de titre
+    d'OB-Kripton au lieu du noir) ;
+- **détection du matériel corrigée** (`packarch-skin` 1.0.0-8) : les
+  renommages `backlight` → `brightness` (rétroéclairage non Intel) et
+  `network` → `ethernet` (connexion filaire) ne touchent plus que les noms de
+  modules entiers des lignes `modules-…` : remplacés partout, ils modifiaient
+  aussi les commentaires, et `backlight-bar` devenait `brightness-bar`, défini
+  par aucun thème (barre de `forest`, supprimé depuis, `hack` et `yellow-flower` non
+  lancée) ;
+- **Zafiro retiré** (`packarch-icons` 2.0-4) : les 12 variantes (environ
+  145 Mo), utilisées par aucun thème ; les valeurs initiales de `/etc/skel`
+  (`xsettings.xml`, `gtk-3.0/settings.ini`, `.gtkrc-2.0`, `rofi/config.rasi`
+  de `packarch-openbox`), remplacées par le thème au premier login, passent
+  à Luna-Antidote-Dark (thème `default`) ;
+- **`Qogir-Pink-Dark`** (`packarch-icons` 2.0-4) : les icônes de dossiers
+  (`places`, 16 à 128 px et `scalable`) de Qogir-Dark (GPL3) recolorées dans
+  le rose du fond `tokyo.png` (`#6ba4e7` → `#da6e89`, `#5294e2` → `#d0607f`,
+  `#003579` → `#5c1530`), le reste hérité de Qogir-Dark (`Inherits=`) ;
 - **liste des fenêtres au centre de la barre du thème `default`** (7.0-27) :
   polywins (`polybar/scripts/polywins.sh`, repris du thème `easy`) affiche les
   fenêtres du bureau courant ; les fenêtres réduites (`_NET_WM_STATE_HIDDEN`)

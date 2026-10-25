@@ -10,6 +10,9 @@
 # Le disque virtuel (vm-test/disque.qcow2, 30 Go, créé s'il manque) et les
 # variables UEFI (vm-test/OVMF_VARS.fd) sont conservés entre deux lancements.
 #
+# SSH : le port 2222 de l'hôte (127.0.0.1 seulement) mène au port 22 de la
+# VM (sshd à activer dans la VM, voir ./vm-themes.sh setup).
+#
 # Affichage : virtio-vga sans accélération GL (virtio-vga-gl donne un écran
 # noir avec NVIDIA), 1600x900 au démarrage, image adaptée à la fenêtre. Dans
 # le live, le bouton « Ajuster la résolution » applique la taille de la fenêtre.
@@ -71,5 +74,6 @@ exec qemu-system-x86_64 -enable-kvm -machine q35 -cpu host -smp 4 -m 6G \
     -device virtio-blk-pci,drive=hd0,bootindex=1 \
     "${boot_args[@]}" \
     -device virtio-vga,xres=1600,yres=900 -display gtk,zoom-to-fit=on \
-    -nic user,model=virtio-net-pci -device qemu-xhci -device usb-tablet \
+    -nic user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:2222-:22 \
+    -device qemu-xhci -device usb-tablet \
     -audiodev pipewire,id=snd0 -device intel-hda -device hda-duplex,audiodev=snd0
