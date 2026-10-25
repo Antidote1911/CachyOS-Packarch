@@ -658,6 +658,34 @@ Modifications de la configuration d'origine :
   `mpd` et `song` sont retirés de ce thème. Le polywins du thème `easy`
   signale aussi les fenêtres réduites (et affiche « Bureau » au lieu de
   « Desktop ») ;
+- **pas de module luminosité ni batterie sans le matériel** (7.0-28,
+  `packarch-skin` 1.0.0-6) : sans rétroéclairage (`/sys/class/backlight`) ou
+  sans batterie de l'ordinateur (`/sys/class/power_supply`, hors souris et
+  claviers), les modules `backlight`/`backlight-bar` et `battery` sont retirés
+  de la barre au premier lancement du thème, avec leur encadrement `LD`/`RD` et
+  le séparateur voisin (`sep`, `sep2`, `dot`, `dot-alt`, `space`), au lieu
+  d'être remplacés par un « NA » rouge (modules `bna`, `btna` et `bna-bar`
+  supprimés des 15 thèmes). Les transitions du thème `adaptive` (`3RD`…)
+  restent, pour garder le dégradé ;
+- **plus de module musique dans polybar** (7.0-28, 15 thèmes) : `mpd`,
+  `song`, `mpd_bar` et `spotify` (avec `spotify.sh`) retirés des barres et
+  des fichiers de modules, de la même façon que la luminosité et la batterie.
+  Le bloc central d'`adaptive`, `beach` et `nord` et la gauche de la barre du
+  bas de `hack` sont maintenant vides ;
+- **mpd retiré** (7.0-28) : plus de dépendances `mpd` et `mpc`, plus de
+  lancement de mpd dans l'`autostart`, scripts `rofi-music` (Super+M) et
+  `ob-music` (Ctrl+Alt+M, ncmpcpp) supprimés avec leurs raccourcis (et retirés
+  de la liste des scripts mis à jour par `packarch-skin`). Les touches
+  multimédia (lecture/pause, arrêt, précédent, suivant) passent par
+  `playerctl` et pilotent n'importe quel lecteur MPRIS (Firefox, mpv,
+  nounours-player…). La mise en veille du menu d'extinction (rofi et menu
+  Openbox) ne lance plus `mpc -q pause` : les commandes étant enchaînées
+  par `&&`, son échec sans mpd aurait empêché la veille. `.mpd` et
+  `.ncmpcpp` ne sont plus dans les dossiers cachés affichés par
+  `pa-places`. `xfce4-mpc-plugin` (greffon mpd du panneau XFCE, inutilisé)
+  est retiré de `packages_desktop.x86_64` et de `netinstall_live.conf`.
+  Spotify aussi : script `rofi-spotify` (sans raccourci), thèmes rofi
+  `music.rasi` des 15 thèmes et icône dunst `music.png`, inutilisée ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
   dans les modules `date` de polybar, dates dans
   l'ordre français (`%d %b %Y`, sans le `It's`/`at` anglais), et
