@@ -648,6 +648,16 @@ Modifications de la configuration d'origine :
   `wallpaper-alt.png`, icônes Luna-Antidote-Dark (aussi dans rofi), curseur
   Pear-Dark et thème Openbox OB-Nordic, au lieu de `default.jpg`, Zafiro,
   Qogirr et OB-Arc-Dark (seul son `theme.toml` change) ;
+- **liste des fenêtres au centre de la barre du thème `default`** (7.0-27) :
+  polywins (`polybar/scripts/polywins.sh`, repris du thème `easy`) affiche les
+  fenêtres du bureau courant ; les fenêtres réduites (`_NET_WM_STATE_HIDDEN`)
+  sont grisées et entre crochets (couleur `alt_foreground` du thème, écrite
+  par `packarch-skin` 1.0.0-5). Clic gauche : activer ou réduire, milieu :
+  fermer, droit : redimensionner avec `slop` (ajouté aux dépendances).
+  L'horloge passe à droite, avant le bouton d'extinction ; les modules
+  `mpd` et `song` sont retirés de ce thème. Le polywins du thème `easy`
+  signale aussi les fenêtres réduites (et affiche « Bureau » au lieu de
+  « Desktop ») ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
   dans les modules `date` de polybar, dates dans
   l'ordre français (`%d %b %Y`, sans le `It's`/`at` anglais), et
