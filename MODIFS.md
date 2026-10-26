@@ -632,6 +632,7 @@ thème et marges d'Openbox, dunst, picom. Il remplace les scripts
 | Commande | Effet |
 |---|---|
 | `packarch-skin apply [THÈME]` | applique un thème (par défaut le courant) : fichiers de couleurs de polybar et rofi, kitty, Geany, GTK (xfconf, gsettings), `rc.xml` d'Openbox, dunst, picom, fond d'écran (nitrogen), puis relance la barre |
+| `packarch-skin render RACINE [THÈME]` | écrit le thème (par défaut `default`) dans les fichiers de `RACINE/etc/skel`, sans rien lancer : xfconf dans `xsettings.xml`, fond dans `nitrogen/bg-saved.cfg`, `color-scheme` dans `RACINE/usr/share/glib-2.0/schemas/25_packarch-openbox.gschema.override` ; utilisé par le PKGBUILD de `packarch-openbox` (1.0.0-9) |
 | `packarch-skin bar` | relance les barres polybar du thème courant (`bars` de `[polybar]` dans `theme.toml`, `main` par défaut) ; détecte au premier lancement de polybar la batterie, l'adaptateur, le rétroéclairage et l'interface réseau (`/sys`) |
 | `packarch-skin list`, `current`, `wallpaper`, `check` | thèmes, thème courant, fond d'écran, vérification des `theme.toml` |
 | `packarch-skin openbox-menu` | menu « Changer de style » d'Openbox |
@@ -776,8 +777,7 @@ Modifications de la configuration d'origine :
 - **Zafiro retiré** (`packarch-icons` 2.0-4) : les 12 variantes (environ
   145 Mo), utilisées par aucun thème ; les valeurs initiales de `/etc/skel`
   (`xsettings.xml`, `gtk-3.0/settings.ini`, `.gtkrc-2.0`, `rofi/config.rasi`
-  de `packarch-openbox`), remplacées par le thème au premier login, passent
-  à Luna-Antidote-Dark (thème `default`) ;
+  de `packarch-openbox`) passent à Luna-Antidote-Dark (thème `default`) ;
 - **`Qogir-Pink-Dark`** (`packarch-icons` 2.0-4) : les icônes de dossiers
   (`places`, 16 à 128 px et `scalable`) de Qogir-Dark (GPL3) recolorées dans
   le rose du fond `tokyo.png` (`#6ba4e7` → `#da6e89`, `#5294e2` → `#d0607f`,
@@ -847,10 +847,18 @@ Modifications de la configuration d'origine :
   `&` du remplacement de `${var//motif/remplacement}` vaut le texte trouvé :
   `XMLescape` produisait `'apos;` au lieu de `&apos;` (libellés et commandes
   des sous-menus contenant `'`, `"`, `<` ou `>` cassés) ;
-- `autostart` : au premier login, `packarch-skin apply` applique le thème
-  courant (`default`), puis `betterlockscreen` prépare les images de son fond
-  d'écran ; le fichier `~/.config/openbox/themes/.applied` évite de le
-  refaire ;
+- **thème `default` déjà appliqué dans `/etc/skel`** (`packarch-openbox`
+  7.0-32) : le PKGBUILD lance `packarch-skin render "$pkgdir" default`
+  (`makedepends`, installé puis retiré par `build.sh`, qui construit
+  `packarch-skin` en premier). La première session démarre directement avec
+  le thème, sans `packarch-skin apply` au premier login (plus d'attente de
+  2 s, de notification, ni de relance de la barre, de dunst et d'Openbox).
+  `theme.toml` reste la seule source : les fichiers de `files/etc/skel` ne
+  sont pas modifiés à la main. L'adaptation de la barre au matériel reste
+  faite au premier lancement de polybar (`packarch-skin bar`) ;
+- `autostart` : au premier login, seul `betterlockscreen` prépare, en
+  arrière-plan, les images du fond d'écran du thème ; le fichier
+  `~/.config/openbox/themes/.applied` évite de le refaire ;
 - `autostart` : ne lance plus `xfce-polkit`, déjà démarré par l'autostart XDG
   (`/etc/xdg/autostart/xfce-polkit.desktop`, via `openbox-xdg-autostart`) ;
   deux instances donnaient « An authentication agent already exists » ;
