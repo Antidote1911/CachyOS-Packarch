@@ -44,6 +44,14 @@ while (( $# )); do
     shift
 done
 
+# Prérequis (README) : qemu-desktop et edk2-ovmf
+if ! command -v qemu-system-x86_64 &>/dev/null || ! command -v qemu-img &>/dev/null ||
+    [[ ! -f ${ovmf_code} ]]; then
+    echo "QEMU ou OVMF manquant :" >&2
+    echo "  sudo pacman -S --needed qemu-desktop edk2-ovmf" >&2
+    exit 1
+fi
+
 mkdir -p "${vm_dir}"
 [[ -f "${disk}" ]] || qemu-img create -f qcow2 "${disk}" "${disk_size}"
 [[ -f "${ovmf_vars}" ]] || cp "${ovmf_vars_tpl}" "${ovmf_vars}"

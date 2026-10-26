@@ -80,6 +80,7 @@ for sig in TERM HUP QUIT; do
 done
 trap 'trap_exit INT "$(gettext "Aborted by user! Exiting...")"' INT
 trap 'trap_exit USR1 "$(gettext "An unknown error has occurred. Exiting...")"' ERR
-trap 'trap_exit EXIT "$(gettext "An unknown error has occurred. Exiting...")"' EXIT
+# Normal end (status 0): unmount only, without the error message
+trap 'if (( $? == 0 )); then umount_fs; else trap_exit EXIT "$(gettext "An unknown error has occurred. Exiting...")"; fi' EXIT
 
 run_build "${build_list_iso}"

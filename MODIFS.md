@@ -944,9 +944,9 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | Fichier | État |
 |---|---|
 | `MODIFS.md` | ajouté (ce document) |
-| `build.sh` | ajouté (reconstruction complète) |
-| `run.sh` | ajouté (test dans QEMU, live ou système installé) |
-| `buildiso.sh`, `util*.sh` | déplacés dans `scripts/` ; `buildiso.sh` trouve la racine du dépôt depuis son emplacement |
+| `build.sh` | ajouté (reconstruction complète ; vérifie d'abord les paquets prérequis) |
+| `run.sh` | ajouté (test dans QEMU, live ou système installé ; vérifie d'abord QEMU et OVMF) |
+| `buildiso.sh`, `util*.sh` | déplacés dans `scripts/` ; `buildiso.sh` trouve la racine du dépôt depuis son emplacement, et son piège `EXIT` n'affiche plus « An unknown error has occurred » quand le build réussit |
 | `scripts/util-iso.sh` | LightDM ; dépôt local Calamares |
 | `scripts/makepkg-generic.conf` | ajouté (compilation en x86-64 générique) |
 | `reset.sh`, `.gitignore` | ajoutés (nettoyage du projet) |
@@ -987,9 +987,6 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
   …`), car `scripts/buildiso.sh` cherche un fichier daté du jour de fin. L'ISO est
   quand même produite sous le nom `out/desktop/cachyos-AAAA.MM.JJ-x86_64.iso`
   (date de début). Défaut du script d'origine, non corrigé.
-- **Message `ERROR: An unknown error has occurred` en fin de build** : affiché à
-  chaque build réussi par le piège `EXIT` de `scripts/buildiso.sh` (d'origine) ; le code
-  de sortie est 0.
 - **Installation en ligne** : nécessite Internet (CachyOS Hello le vérifie avant
   de lancer l'installeur). Elle télécharge tout le système (environ 3 Go).
 - **`vim`** reste installé (dépendance de `cachyos-zsh-config`).

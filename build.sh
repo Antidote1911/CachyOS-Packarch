@@ -40,13 +40,21 @@ if [[ ${EUID} -eq 0 ]]; then
     exit 1
 fi
 
+# Prérequis (README) : vérifiés avant de lancer une longue compilation
+missing=()
+for p in archiso mkinitcpio-archiso squashfs-tools grub git base-devel; do
+    pacman -Q "${p}" &>/dev/null || missing+=("${p}")
+done
+if (( ${#missing[@]} )); then
+    echo "Paquets manquants : ${missing[*]}" >&2
+    echo "  sudo pacman -S --needed ${missing[*]}" >&2
+    exit 1
+fi
+
 echo "==> 1/2 Calamares et dépôt local"
 ./calamares/build.sh "${cala_args[@]}"
 
 echo "==> 2/2 ISO"
-# Le message « ERROR: An unknown error has occurred » affiché à la fin d'un
-# build réussi vient du piège EXIT de buildiso.sh (d'origine) : le code de
-# sortie, lui, est bien 0.
 sudo ./scripts/buildiso.sh -p desktop -w "${iso_args[@]}"
 
 # Les fichiers produits appartiennent à root
