@@ -32,6 +32,15 @@ for f in .bash_profile .bashrc .config/smplayer .config/geany/geany.conf; do
     cp -a "/etc/skel/$f" "$root/etc/skel/$f"
 done
 
+# With Openbox, the default theme was rendered into /etc/skel when
+# packarch-openbox was built, without the geany.conf copied above (XFCE
+# colors). Rendered again so that the first session already has the default
+# theme everywhere (/etc/skel is copied to the home at the end by Calamares)
+if [[ -x "$root/usr/bin/packarch-skin" ]]; then
+    chroot "$root" packarch-skin render / default ||
+        echo "packarch-skin render failed" >&2
+fi
+
 # Read after Calamares' 10-installer (%wheel ALL=(ALL) ALL): the last match wins
 sudoers="$root/etc/sudoers.d/90-wheel-nopasswd"
 install -d -m 750 "$root/etc/sudoers.d"

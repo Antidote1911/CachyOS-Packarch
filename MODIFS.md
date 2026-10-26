@@ -566,7 +566,13 @@ retire `/etc/xdg/calamares` du système installé.
   n'a pas sa place dans le dépôt public : la partie du `/etc/skel` du live
   indépendante du bureau (`.bashrc`, `.bash_profile`, `geany.conf`, SMPlayer ;
   le reste contient les réglages XFCE, que `xfsettingsd` appliquerait sous
-  Openbox, et le bouton propre au live). Il crée aussi `/etc/sudoers.d/90-wheel-nopasswd`
+  Openbox, et le bouton propre au live). Avec Openbox, il relance ensuite
+  `packarch-skin render / default` dans le système installé : le thème
+  default a été écrit dans `/etc/skel` à la construction de
+  `packarch-openbox`, sans ce `geany.conf` (couleurs XFCE) ; la première
+  session a ainsi le thème default partout, sans `packarch-skin apply`
+  (`/etc/skel` est copié dans le dossier personnel à la fin, par l'étape
+  `shellprocess`). Il crée aussi `/etc/sudoers.d/90-wheel-nopasswd`
   (`%wheel  ALL=(ALL) NOPASSWD: ALL`) : **`sudo` sans mot de passe** sur le
   système installé. Le nom en `90-` le fait lire après le `10-installer` de
   Calamares (`%wheel ALL=(ALL) ALL`), car c'est la dernière règle qui compte.
