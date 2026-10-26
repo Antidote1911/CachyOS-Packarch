@@ -428,23 +428,28 @@ de l'auteur) :
   paquet `packarch-mirrorlist` : ce paquet ne le déclare pas en `backup`, et Calamares
   doit le copier sur le système installé **avant** pacstrap (voir section 6),
   ce qui ferait échouer l'installation du paquet (« existe déjà »).
-- paquets installés (live et système installé), un par catégorie, chacun
-  complet (sources : [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs)) :
-  `packarch-themes` (tous les thèmes GTK et Openbox : `Arc-Dark`,
-  `Juno-Mirage`, `Dracula`, `Gruvbox`, `Nordic`, `Greybird-dark`,
-  `Orchis-Red-Dark`…), `packarch-icons` (les icônes des thèmes : `Luna-*`,
-  `Hack`, `Luv-Folders(-Dark)`, `Packarch(-Dark)`, `Vimix-Black(-Dark)`,
-  `Papirus-Apps`, `Qogir-Pink-Dark` ; dépend de `qogir-icon-theme`,
-  `papirus-icon-theme` et `beautyline`), `packarch-backgrounds` (tous
-  les fonds d'écran). Les icônes se complètent par héritage : `Luna-*-Dark` →
-  `Packarch-Dark` → `Papirus-Apps`, `Papirus-Dark`.
-- depuis `packarch-icons` 2.0-5, les 12 thèmes d'icônes utilisés par aucun
-  thème (Arc-Circle, Luna-Light, Nordic-Folders(-Bluish, -Green),
-  Numix-Apps(-White), Vimix-White(-Dark), White-Folders, Win11(-Dark)) sont
-  dans `packarch-icons-extra`, gardé dans [packarch] mais installé ni sur le
-  live ni par Calamares (`sudo pacman -S packarch-icons-extra` pour les
-  avoir) : 87 Mo installés et 18 Mo compressés de moins. `Luna` et
-  `Vimix-Black` restent dans `packarch-icons` : les `Luna-*-Dark` et
+- paquets installés (live et système installé), un par catégorie (sources :
+  [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs)), réduits à ce
+  qu'utilise le bureau XFCE (sélecteur de thèmes, écran de connexion) :
+  `packarch-themes` (thèmes GTK `Arc-Dark`, `Dracula`, `Greybird-dark`,
+  `Gruvbox`, `Juno-Mirage`, `Nordic`, `Orchis-Red-Dark`), `packarch-icons`
+  (`Luna`, `Luna-*-Dark`, `Vimix-Black(-Dark)`, et `Packarch(-Dark)`,
+  `Papirus-Apps` dont ils héritent ; dépend de `qogir-icon-theme` et
+  `papirus-icon-theme`), `packarch-backgrounds` (fonds du sélecteur,
+  `xfce-default.png`, `wallpaper-alt.png`). Les icônes se complètent par
+  héritage : `Luna-*-Dark` → `Packarch-Dark` → `Papirus-Apps`, `Papirus-Dark`.
+- ce que seul Openbox utilise (et le reste, inutilisé par XFCE) est dans
+  `packarch-themes-openbox` (thèmes `OB-*` et autres thèmes GTK, avec
+  `sweet-gtk-theme`), `packarch-icons-openbox` (`Hack`, `Luv-Folders(-Dark)`,
+  `Qogir-Pink-Dark`, avec `beautyline`) et `packarch-backgrounds-openbox`,
+  dépendances de `packarch-openbox` 7.0-31 : l'ISO (live XFCE) ne les
+  embarque pas, Calamares les installe seulement avec le bureau Openbox
+  (environ 170 Mo installés et 35 Mo compressés de moins sur le live).
+- les 12 thèmes d'icônes utilisés par aucun thème (Arc-Circle, Luna-Light,
+  Nordic-Folders(-Bluish, -Green), Numix-Apps(-White), Vimix-White(-Dark),
+  White-Folders, Win11(-Dark)) sont dans `packarch-icons-extra`, gardé dans
+  [packarch] mais installé nulle part (`sudo pacman -S packarch-icons-extra`).
+  `Luna` et `Vimix-Black` restent dans `packarch-icons` : les `Luna-*-Dark` et
   `Vimix-Black-Dark` pointent vers leurs dossiers par des liens symboliques.
 - plus aucun thème, icône ni fond d'écran n'est copié à la main dans
   `airootfs` (ni copié par `apply-live-config`).
