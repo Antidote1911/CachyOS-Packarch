@@ -585,6 +585,10 @@ retire `/etc/xdg/calamares` du système installé.
   déchiffre dans `$XDG_RUNTIME_DIR` (en RAM ; mot de passe transmis par un
   tube, jamais en argument), l'extrait dans le dossier personnel, met
   `~/.ssh` en 700 et les clés privées en 600, puis lance `~/gitconfig.sh`.
+  Ce dernier configure git et ajoute aussi à `/etc/fstab` (par `sudo`, sans
+  mot de passe pour `wheel`) le NFS du serveur (`/mnt/medias`) et le SSD de
+  données (`/mnt/ssd`, `nofail`), si leur point de montage n'y est pas déjà ;
+  copie de l'original dans `/etc/fstab.avant-github-setup`.
   Mot de passe faux : redemandé. Annuler : « Plus tard » (redemandé à la
   prochaine session) ou « Ne plus demander ». Une fois terminé, le fichier
   `~/.config/github-setup.done` empêche toute nouvelle demande ; journal dans
