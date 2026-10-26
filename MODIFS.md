@@ -432,11 +432,20 @@ de l'auteur) :
   complet (sources : [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs)) :
   `packarch-themes` (tous les thèmes GTK et Openbox : `Arc-Dark`,
   `Juno-Mirage`, `Dracula`, `Gruvbox`, `Nordic`, `Greybird-dark`,
-  `Orchis-Red-Dark`…), `packarch-icons` (toutes les icônes : `Luna-*`,
-  `Packarch(-Dark)`, `Vimix-Black(-Dark)`, `Papirus-Apps`… ; dépend de
-  `qogir-icon-theme` et `papirus-icon-theme`), `packarch-backgrounds` (tous
+  `Orchis-Red-Dark`…), `packarch-icons` (les icônes des thèmes : `Luna-*`,
+  `Hack`, `Luv-Folders(-Dark)`, `Packarch(-Dark)`, `Vimix-Black(-Dark)`,
+  `Papirus-Apps`, `Qogir-Pink-Dark` ; dépend de `qogir-icon-theme`,
+  `papirus-icon-theme` et `beautyline`), `packarch-backgrounds` (tous
   les fonds d'écran). Les icônes se complètent par héritage : `Luna-*-Dark` →
   `Packarch-Dark` → `Papirus-Apps`, `Papirus-Dark`.
+- depuis `packarch-icons` 2.0-5, les 12 thèmes d'icônes utilisés par aucun
+  thème (Arc-Circle, Luna-Light, Nordic-Folders(-Bluish, -Green),
+  Numix-Apps(-White), Vimix-White(-Dark), White-Folders, Win11(-Dark)) sont
+  dans `packarch-icons-extra`, gardé dans [packarch] mais installé ni sur le
+  live ni par Calamares (`sudo pacman -S packarch-icons-extra` pour les
+  avoir) : 87 Mo installés et 18 Mo compressés de moins. `Luna` et
+  `Vimix-Black` restent dans `packarch-icons` : les `Luna-*-Dark` et
+  `Vimix-Black-Dark` pointent vers leurs dossiers par des liens symboliques.
 - plus aucun thème, icône ni fond d'écran n'est copié à la main dans
   `airootfs` (ni copié par `apply-live-config`).
 
