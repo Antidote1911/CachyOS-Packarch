@@ -338,6 +338,10 @@ de l'ISO à la fin.
   n'est pas repris : le greeter est réglé par `packarch-system-settings`.
 - **Curseur `Qogir-Dark`** (fourni par `qogir-icon-theme`) : le sélecteur de
   thèmes ne le change pas.
+- **DPI des polices fixé à 96** (1.0.9-2) : `/Xft/DPI` vaut 96 dans
+  `xsettings.xml` au lieu d'être vide. Sans valeur, xfsettingsd calcule le
+  DPI depuis l'écran : environ 70 avec le pilote NVIDIA (`UseEdidDpi`, voir
+  `/var/log/Xorg.0.log`), ce qui réduisait tout le bureau d'un quart.
 - **Greeter LightDM sombre** (XFCE et Openbox) : `packarch-system-settings`
   règle dans `/usr/share/lightdm/lightdm-gtk-greeter.conf.d/50-packarch.conf`
   le thème GTK `Greybird-dark` (`packarch-themes`), les icônes `Luna-Red-Dark`
@@ -438,10 +442,11 @@ de l'auteur) :
   `papirus-icon-theme`), `packarch-backgrounds` (fonds du sélecteur,
   `xfce-default.png`, `wallpaper-alt.png`). Les icônes se complètent par
   héritage : `Luna-*-Dark` → `Packarch-Dark` → `Papirus-Apps`, `Papirus-Dark`.
-- ce que seul Openbox utilise (et le reste, inutilisé par XFCE) est dans
-  `packarch-themes-openbox` (thèmes `OB-*` et autres thèmes GTK, avec
-  `sweet-gtk-theme`), `packarch-icons-openbox` (`Hack`, `Luv-Folders(-Dark)`,
-  `Qogir-Pink-Dark`, avec `beautyline`) et `packarch-backgrounds-openbox`,
+- ce que seul Openbox utilise est dans `packarch-themes-openbox` (un thème
+  GTK `Packarch-<Thème>` et un thème Openbox `OB-Packarch-<Thème>` par thème
+  de `packarch-skin`, voir la section 6), `packarch-icons-openbox` (`Hack`,
+  `Luv-Folders(-Dark)`, `Qogir-Pink-Dark`, avec `beautyline`) et
+  `packarch-backgrounds-openbox`,
   dépendances de `packarch-openbox` 7.0-31 : l'ISO (live XFCE) ne les
   embarque pas, Calamares les installe seulement avec le bureau Openbox
   (environ 170 Mo installés et 35 Mo compressés de moins sur le live).
@@ -874,6 +879,43 @@ Modifications de la configuration d'origine :
   deux instances donnaient « An authentication agent already exists » ;
 - fichiers XML de xfconf et Thunar : le commentaire de copyright placé avant
   la déclaration XML est retiré ;
+- **polices globales** (`packarch-skin` 1.0.0-11, `packarch-openbox`
+  7.0-38) : `~/.config/openbox/themes/fonts.toml` (clés de la section
+  `[fonts]`, toutes optionnelles) remplace les polices de chaque thème, qui
+  ne changent donc plus avec le thème. `packarch-skin font [CIBLE [FAMILLE
+  STYLE TAILLE]]` les affiche ou les enregistre et ne recharge que le
+  programme concerné ; pour GTK, le démon Thunar est relancé, car il ne lit
+  la police qu'au démarrage. Le menu Préférences › Changer de police
+  (`pa-change-fonts`) n'est plus que le sélecteur yad, ouvert sur la police
+  en place ;
+- **DPI des polices fixé à 96** (7.0-41) : `/etc/skel/.Xresources`
+  (`Xft.dpi: 96`, fusionné par LightDM avant la session) et `/Xft/DPI` à 96
+  dans `xsettings.xml`. Avec le pilote NVIDIA (`UseEdidDpi`), X démarrait à
+  environ 70 DPI, qu'Openbox lit à son démarrage : ses polices étaient d'un
+  quart plus petites que celles des applications GTK ;
+- **Openbox en Noto Sans 10** dans les dix thèmes (7.0-40, au lieu de
+  JetBrains Mono 12, police à chasse fixe bien plus large) ; dépendance
+  `noto-fonts` (7.0-39) ;
+- **rôle `fastfetch`** dans les `[roles]` de `theme.toml` (`packarch-skin`
+  1.0.0-12) : couleur du logo, du titre et des libellés de fastfetch, écrite
+  dans `~/.config/fastfetch/config.jsonc` avec la liste des modules par
+  défaut (un fichier sans `modules` n'affiche rien). La première ligne du
+  fichier le marque comme écrit par packarch-skin : un fichier sans elle
+  appartient à l'utilisateur et n'est pas modifié. Avec un thème sans ce
+  rôle, le fichier est supprimé. `red-satanic` : `fastfetch = "color3"`, et
+  son vert du terminal (`color2`, `color10`) devient jaune (7.0-43) ;
+- **un thème GTK et un thème Openbox par thème** (`packarch-themes-openbox`
+  2.0-5 et 2.0-6, `packarch-openbox` 7.0-44) : `Packarch-<Thème>` et
+  `OB-Packarch-<Thème>`, pour qu'une modification ne touche qu'un thème
+  (Manhattan était partagé par `packarch` et `pink-city`). Les originaux ont
+  été renommés (Satanic, OB-Kripton, Manhattan, Sweet-Dark…) ; Arc-Dark et
+  Juno-Mirage, qui servent aussi au bureau XFCE, restent dans
+  `packarch-themes` et ont été copiés. La correspondance est dans le
+  PKGBUILD de `packarch-themes-openbox`. Les autres thèmes GTK et Openbox,
+  utilisés par aucun thème, ont été retirés avec la dépendance
+  `sweet-gtk-theme` (193 Mo de thèmes ramenés à 59 Mo). Couleurs modifiées
+  pour `red-satanic` : accent orange `#f7901e` en GTK au lieu du gris bleuté
+  `#9bbfbf`, et rouge `#d7263d` en Openbox ;
 - pas de script `.install` : Calamares copie lui-même `/etc/skel`.
 
 `calamares-online.sh` (lancé par CachyOS Hello) garde le rafraîchissement du
