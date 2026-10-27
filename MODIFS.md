@@ -344,7 +344,8 @@ de l'ISO à la fin.
   `/var/log/Xorg.0.log`), ce qui réduisait tout le bureau d'un quart.
 - **Greeter LightDM sombre** (XFCE et Openbox) : `packarch-system-settings`
   règle dans `/usr/share/lightdm/lightdm-gtk-greeter.conf.d/50-packarch.conf`
-  le thème GTK `Greybird-dark` (`packarch-themes`), les icônes `Luna-Red-Dark`
+  son propre thème GTK `Packarch-Greeter` (le GTK 3 de `Greybird-dark`, dans
+  ce paquet depuis 1.0-4), les icônes `Luna-Red-Dark`
   (`packarch-icons`), le curseur `Qogir-Dark` (`qogir-icon-theme`) et le fond
   `/usr/share/backgrounds/wallpaper-alt.png` (`packarch-backgrounds` ;
   `packarch-system-settings` 1.0-3). Le
@@ -436,7 +437,9 @@ de l'auteur) :
   [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs)), réduits à ce
   qu'utilise le bureau XFCE (sélecteur de thèmes, écran de connexion) :
   `packarch-themes` (thèmes GTK `Arc-Dark`, `Dracula`, `Greybird-dark`,
-  `Gruvbox`, `Juno-Mirage`, `Nordic`, `Orchis-Red-Dark`), `packarch-icons`
+  `Gruvbox`, `Juno-Mirage`, `Nordic`, `Orchis-Red-Dark` ; live et bureau XFCE
+  seulement, par `packarch-xfce-settings` : `packarch-openbox` 7.0-45 n'en
+  dépend plus), `packarch-icons`
   (`Luna`, `Luna-*-Dark`, `Vimix-Black(-Dark)`, et `Packarch(-Dark)`,
   `Papirus-Apps` dont ils héritent ; dépend de `qogir-icon-theme` et
   `papirus-icon-theme`), `packarch-backgrounds` (fonds du sélecteur,
@@ -916,6 +919,10 @@ Modifications de la configuration d'origine :
   `sweet-gtk-theme` (193 Mo de thèmes ramenés à 59 Mo). Couleurs modifiées
   pour `red-satanic` : accent orange `#f7901e` en GTK au lieu du gris bleuté
   `#9bbfbf`, et rouge `#d7263d` en Openbox ;
+- **plus de `packarch-themes`** (7.0-45) : ses thèmes GTK ne servent qu'au
+  bureau XFCE. L'écran de connexion, commun aux deux bureaux, a son propre
+  thème `Packarch-Greeter` (`packarch-system-settings` 1.0-4), et
+  `packarch-themes` sort du groupe commun de `netinstall_live.conf` ;
 - pas de script `.install` : Calamares copie lui-même `/etc/skel`.
 
 `calamares-online.sh` (lancé par CachyOS Hello) garde le rafraîchissement du
