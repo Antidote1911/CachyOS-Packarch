@@ -950,6 +950,22 @@ système déjà installé, `pacman -Syu` ne propose pas l'échange malgré le
 `netinstall_live.conf`, et dans la liste des paquets gardés de
 `removeun-online`.
 
+### Installateur de paquets : Packarch Package Installer
+
+CachyOS Package Installer (`cachyos-packageinstaller`) est remplacé par
+**l'Installateur de paquets Packarch** (paquet `packarch-pi` du dépôt
+`[packarch]`, sources sur
+[GitHub](https://github.com/Antidote1911/packarch-pi)), un fork de la version
+1.6.2 : interface en français seulement, onglet Flatpak affiché par défaut.
+La liste « Applications populaires » (`pkglist.yaml`) est téléchargée depuis
+le dépôt GitHub de Packarch au lieu de celui de CachyOS : la modifier là-bas
+suffit, sans reconstruire l'ISO ni le paquet. Packarch Hello (1.2.0 et
+suivantes) lance `packarch-pi`. Comme `cachyos-packageinstaller`, il n'est
+que dans le groupe caché « CachyOS Packages » de `netinstall_live.conf` (le
+système installé), pas dans le système live. Les deux paquets peuvent
+coexister : sur un système déjà installé, `sudo pacman -S packarch-pi`
+l'ajoute, et `cachyos-packageinstaller` peut être retiré à la main.
+
 ### Installation hors ligne (conservée, non utilisée)
 
 `settings_offline.conf` copie le système live au lieu de télécharger les
