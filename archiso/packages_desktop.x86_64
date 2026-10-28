@@ -18,7 +18,7 @@ cachyos-calamares-next
 cachyos-cli-installer-new
 cachyos-drm-awaiter
 cachyos-grub-theme
-cachyos-hello
+packarch-hello
 cachyos-hooks
 cachyos-keyring
 cachyos-mirrorlist

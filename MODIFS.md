@@ -925,10 +925,27 @@ Modifications de la configuration d'origine :
   `packarch-themes` sort du groupe commun de `netinstall_live.conf` ;
 - pas de script `.install` : Calamares copie lui-même `/etc/skel`.
 
-`calamares-online.sh` (lancé par CachyOS Hello) garde le rafraîchissement du
+`calamares-online.sh` (lancé par Packarch Hello) garde le rafraîchissement du
 trousseau de clés, mais **ne réinstalle plus `cachyos-calamares-next` depuis le
 dépôt CachyOS** au lancement, ce qui remplacerait notre version. Il écrit
 aussi la sortie de Calamares dans `/home/liveuser/cachy-install.log`.
+
+### Écran de bienvenue : Packarch Hello
+
+CachyOS Hello est remplacé par **Packarch Hello** (paquet `packarch-hello`
+du dépôt `[packarch]`, sources sur
+[GitHub](https://github.com/Antidote1911/packarch-hello)), un fork de
+CachyOS Hello 0.28.1 : nom, logo, textes et liens de Packarch, sans forum,
+dons, Discord ni Reddit, sans le code propre à KDE, en anglais et en
+français seulement. Son bouton d'installation lance toujours
+`calamares-online.sh`, après avoir vérifié seulement la connexion Internet :
+plus de comparaison de la version de l'ISO avec `cachyos.org/versions.json`
+(qui ne connaît que les ISO CachyOS), ni de test d'édition (Packarch n'a que
+l'édition de bureau). Le paquet remplace `cachyos-hello` (`replaces`) : sur
+un système déjà installé, `pacman -Syu` propose l'échange. Il est dans
+`packages_desktop.x86_64`, dans le groupe caché « CachyOS Packages » de
+`netinstall_live.conf`, et dans la liste des paquets gardés de
+`removeun-online`.
 
 ### Installation hors ligne (conservée, non utilisée)
 
@@ -1009,7 +1026,7 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `calamares/PKGBUILD`, `calamares/live-offline.patch`, `calamares/build.sh` | ajoutés |
 | `archiso/airootfs/etc/xdg/calamares/` | ajouté (configuration de Calamares, lue avec `calamares -X`) |
 | `localrepo/` | généré par `calamares/build.sh` |
-| `archiso/packages_desktop.x86_64` | KDE → XFCE et applications, `cachyos-zsh-config`, sans noyau LTS ni outils de secours |
+| `archiso/packages_desktop.x86_64` | KDE → XFCE et applications, `cachyos-zsh-config`, `packarch-hello` au lieu de `cachyos-hello`, sans noyau LTS ni outils de secours |
 | `archiso/grub/`, `archiso/syslinux/`, `archiso/efiboot/`, `airootfs/etc/mkinitcpio.d/linux.preset` | `linux-cachyos` seul |
 | `archiso/airootfs/etc/passwd` | zsh pour `root` et `liveuser` |
 | `archiso/airootfs/root/.zshrc` | ajouté (configuration zsh CachyOS pour root) |
@@ -1032,7 +1049,7 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `archiso/airootfs/usr/share/github-setup/` | ajouté (archive chiffrée, entrée autostart) |
 | `archiso/airootfs/usr/local/bin/cleanup-live-iso` | ajouté |
 | `archiso/airootfs/usr/local/bin/removeun` | modifié |
-| `archiso/airootfs/usr/local/bin/removeun-online` | modifié |
+| `archiso/airootfs/usr/local/bin/removeun-online` | modifié (garde `packarch-hello` au lieu de `cachyos-hello`) |
 
 ---
 
@@ -1042,7 +1059,7 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
   …`), car `scripts/buildiso.sh` cherche un fichier daté du jour de fin. L'ISO est
   quand même produite sous le nom `out/desktop/cachyos-AAAA.MM.JJ-x86_64.iso`
   (date de début). Défaut du script d'origine, non corrigé.
-- **Installation en ligne** : nécessite Internet (CachyOS Hello le vérifie avant
+- **Installation en ligne** : nécessite Internet (Packarch Hello le vérifie avant
   de lancer l'installeur). Elle télécharge tout le système (environ 3 Go).
 - **`vim`** reste installé (dépendance de `cachyos-zsh-config`).
 - **Bureau Openbox** : l'ISO grossit d'environ 130 Mo (dépôt local). Les
