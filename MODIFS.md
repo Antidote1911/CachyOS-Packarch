@@ -551,7 +551,7 @@ retire `/etc/xdg/calamares` du système installé.
   Les logiciels optionnels (Discord, FileZilla, LibreOffice en français,
   GIMP, Steam, Bombicat, rustup, Qt Creator, KeePassXC, Deadpool,
   impression CUPS, accessibilité) s'installent après l'installation avec
-  l'**Installateur de paquets Packarch** (liste `pkglist.yaml` de
+  **Packarch Installer** (liste `pkglist.yaml` de
   `packarch-pi`). Le correctif de `netinstall/PackageModel.cpp` (cocher un
   groupe caché par son nom) reste dans `live-offline.patch`, mais ne sert plus
   à l'installation en ligne.
@@ -578,7 +578,7 @@ retire `/etc/xdg/calamares` du système installé.
   système installé. Le nom en `90-` le fait lire après le `10-installer` de
   Calamares (`%wheel ALL=(ALL) ALL`), car c'est la dernière règle qui compte.
   (Il n'installe plus la toolchain Rust : rustup n'est plus proposé par
-  Calamares. Après l'avoir installé avec l'Installateur de paquets, lancer
+  Calamares. Après l'avoir installé avec Packarch Installer, lancer
   `rustup default stable`.)
 - **Configuration de GitHub au premier login** : `apply-live-config` copie
   aussi `/usr/local/bin/github-setup`, l'archive chiffrée
@@ -941,10 +941,10 @@ système déjà installé, `pacman -Syu` ne propose pas l'échange malgré le
 `packages_online.conf`, et dans la liste des paquets gardés de
 `removeun-online`.
 
-### Installateur de paquets : Packarch Package Installer
+### Installateur de paquets : Packarch Installer
 
 CachyOS Package Installer (`cachyos-packageinstaller`) est remplacé par
-**l'Installateur de paquets Packarch** (paquet `packarch-pi` du dépôt
+**Packarch Installer** (paquet `packarch-pi` du dépôt
 `[packarch]`, sources sur
 [GitHub](https://github.com/Antidote1911/packarch-pi)), un fork de la version
 1.6.2 : interface en français seulement, onglet Flatpak affiché par défaut.
