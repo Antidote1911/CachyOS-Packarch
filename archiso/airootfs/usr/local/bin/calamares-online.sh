@@ -2,7 +2,7 @@
 #
 # Started by CachyOS Hello ("Launch installer"). Online installation: the
 # packages are downloaded (up to date) by pacstrap, then the XFCE settings of
-# the live ISO are copied to the target (netinstall@live, shellprocess@live_config).
+# the live ISO are copied to the target (packages@online, shellprocess@live_config).
 # Calamares comes from the local repository of the ISO build (calamares/), it
 # must not be replaced by the one of the CachyOS repository.
 

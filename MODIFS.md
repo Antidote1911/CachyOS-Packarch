@@ -182,7 +182,7 @@ qt5ct, les thèmes Nord et `char-white`, `capitaine-cursors`,
 `cachyos-alacritty-config`, `ttf-fantasque-nerd` et `ttf-fira-sans`.
 `qogir-icon-theme` (curseur Qogir-Dark) reste, en dépendance de
 `packarch-xfce-settings` et dans le groupe commun aux deux bureaux de
-`netinstall_live.conf`.
+`packages_online.conf`.
 
 **Shell par défaut : zsh** avec la configuration de `cachyos-zsh-config` (oh-my-zsh,
 powerlevel10k, autosuggestions, coloration syntaxique), sur le live comme sur le
@@ -198,12 +198,12 @@ dépendances, sauf `vim`, dont elle ne se sert pas ; il fournit
   `etc/passwd` donne `/usr/bin/zsh` à `root` et `liveuser`, et
   `root/.zshrc` charge la même configuration pour root ;
 - système installé : `users.conf` (dans `etc/xdg/calamares/modules`) crée l'utilisateur
-  avec `/bin/zsh` ; `packarch-zsh-config` est dans `netinstall_live.conf`
+  avec `/bin/zsh` ; `packarch-zsh-config` est dans `packages_online.conf`
   et son `.zshrc` passe par `/etc/skel`. Root garde bash en installation en
   ligne. Le script `shell-setup` de Calamares, lancé à la fin, essaie zsh
   avant fish (l'original choisissait fish dès qu'il était installé) ;
 - `cachyos-fish-config` (et donc fish) retiré du live et de
-  `netinstall_live.conf` : inutile avec zsh.
+  `packages_online.conf` : inutile avec zsh.
 
 Toute la configuration zsh est dans `packarch-zsh-config`, rien n'est modifié
 après son installation :
@@ -499,7 +499,7 @@ Les fichiers de configuration du paquet (`/etc/calamares/…`) lui
 appartiennent et ne peuvent pas être remplacés depuis `airootfs` (mkarchiso
 échouerait). Notre configuration est donc dans
 `archiso/airootfs/etc/xdg/calamares/` : `settings_online.conf`,
-`settings_offline.conf` et `modules/` (`netinstall_live.conf`,
+`settings_offline.conf` et `modules/` (`packages_online.conf`,
 `netinstall_offline.conf`, `packagechooser_desktop.conf`, `bootloader.conf`,
 `packages_offline.conf`, `users.conf`, `welcome.conf`, `shellprocess.conf`,
 `shellprocess_initialize_pacman.conf`, `shellprocess_live_config.conf`,
@@ -535,33 +535,26 @@ retire `/etc/xdg/calamares` du système installé.
   `/etc/pacman.d/packarch-mirrorlist` sur le système installé, avec les
   listes de miroirs CachyOS : pacstrap et pacman y lisent le `pacman.conf` du
   système installé, qui inclut `[packarch]`.
-- **`netinstall@live`** (`netinstall_live.conf`) remplace la liste de paquets
-  de CachyOS :
-  - groupes cachés et obligatoires : base CachyOS (noyau `linux-cachyos`
-    seul, microcode, outils CachyOS, réseau, pare-feu, bluetooth,
-    son, polices, matériel…, **sans `alacritty` ni `micro`**) et **les
-    applications du live communes aux deux bureaux** (LightDM, Xorg, geany,
-    smplayer, firefox et `firefox-i18n-fr`, applications Packarch…) ;
-  - deux groupes cachés **`XFCE`** et **`Openbox`**, décochés : la page
-    « Bureau » coche celui dont le nom est l'identifiant du choix (méthode
-    `netinstall-select`). `XFCE` contient le bureau du live (mêmes paquets que
-    l'ISO, dont `packarch-xfce-settings` : réglages et sélecteur de thèmes) ; `Openbox` contient
-    `packarch-openbox`, les greffons Thunar et les thèmes GTK/icônes Packarch
-    des thèmes Openbox. Calamares ne savait pas cocher un groupe **caché**
-    par son nom (ces groupes ne sont pas dans l'arbre parcouru) :
-    `netinstall/PackageModel.cpp` les parcourt aussi (3 lignes) ;
-  - **cases à cocher** (décochées par défaut), rangées par catégorie
-    (sous-groupes `subgroups`, dépliés) :
-
-    | Catégorie | Logiciels |
-    |---|---|
-    | Internet | Discord, FileZilla |
-    | Bureautique | LibreOffice (`libreoffice-fresh` + `libreoffice-fresh-fr`) |
-    | Graphisme | GIMP |
-    | Jeux | Steam, Bombicat (`[packarch]`) |
-    | Développement | Rust (`rustup`), Qt Creator |
-    | Utilitaires | KeePassXC, Deadpool (`[packarch]`) |
-    | Système | Impression (CUPS), Accessibilité |
+- **Pas de page « Logiciels supplémentaires »** : `netinstall@live` est retiré
+  de `settings_online.conf`. La liste de paquets de CachyOS est remplacée par
+  les `operations` de **`packages_online.conf`** (options d'origine de
+  CachyOS, `packages@online`, lancé après pacstrap), une opération `install`
+  par groupe : base CachyOS (noyau `linux-cachyos` seul, microcode, outils
+  CachyOS, réseau, pare-feu, bluetooth, son, polices, matériel…, **sans
+  `alacritty` ni `micro`**) et **les applications du live communes aux deux
+  bureaux** (LightDM, Xorg, geany, smplayer, firefox et `firefox-i18n-fr`,
+  applications Packarch…). `$LOCALE` y est remplacé comme dans netinstall.
+  La page **« Bureau »** (`packagechooser_desktop.conf`, méthode `packages`)
+  ajoute les paquets du bureau choisi : celui du live pour **XFCE** (mêmes
+  paquets que l'ISO, dont `packarch-xfce-settings` : réglages et sélecteur de
+  thèmes), `packarch-openbox` et les greffons Thunar pour **Openbox**.
+  Les logiciels optionnels (Discord, FileZilla, LibreOffice en français,
+  GIMP, Steam, Bombicat, rustup, Qt Creator, KeePassXC, Deadpool,
+  impression CUPS, accessibilité) s'installent après l'installation avec
+  l'**Installateur de paquets Packarch** (liste `pkglist.yaml` de
+  `packarch-pi`). Le correctif de `netinstall/PackageModel.cpp` (cocher un
+  groupe caché par son nom) reste dans `live-offline.patch`, mais ne sert plus
+  à l'installation en ligne.
 - **`shellprocess@live_config`**, après l'installation des paquets : lance
   `/usr/local/bin/apply-live-config` (fourni par l'ISO). Il reconnaît le bureau
   choisi aux paquets installés (`openbox` sans `xfce4-session` : Openbox).
@@ -584,11 +577,9 @@ retire `/etc/xdg/calamares` du système installé.
   (`%wheel  ALL=(ALL) NOPASSWD: ALL`) : **`sudo` sans mot de passe** sur le
   système installé. Le nom en `90-` le fait lire après le `10-installer` de
   Calamares (`%wheel ALL=(ALL) ALL`), car c'est la dernière règle qui compte.
-  Enfin, si **rustup** a été coché, il lance `rustup default stable` sous le
-  nom de l'utilisateur créé (Calamares passe `${USER}` en second argument) :
-  la toolchain stable est téléchargée dans son dossier personnel et activée.
-  Un échec (pas de réseau) ne fait pas échouer l'installation. Délai de
-  l'étape porté de 10 à 30 minutes pour ce téléchargement.
+  (Il n'installe plus la toolchain Rust : rustup n'est plus proposé par
+  Calamares. Après l'avoir installé avec l'Installateur de paquets, lancer
+  `rustup default stable`.)
 - **Configuration de GitHub au premier login** : `apply-live-config` copie
   aussi `/usr/local/bin/github-setup`, l'archive chiffrée
   `/usr/share/github-setup/myEncryptedFile` (clé SSH GitHub et `gitconfig.sh`,
@@ -608,12 +599,12 @@ retire `/etc/xdg/calamares` du système installé.
   `~/.config/github-setup.done` empêche toute nouvelle demande ; journal dans
   `~/.cache/github-setup.log`. Sur le live, rien n'est lancé (l'entrée
   autostart n'est installée que sur le système installé). `zenity` est
-  ajouté au groupe du bureau de `netinstall_live.conf` (`cryptyrust` y était
+  ajouté au groupe du bureau de `packages_online.conf` (`cryptyrust` y était
   déjà). **Seule la version chiffrée est sur l'ISO** : pour changer de clé,
   remplacer `archiso/airootfs/usr/share/github-setup/myEncryptedFile`
   (archive `.tar.gz` chiffrée avec `cryptyrust -e`, extraite dans le dossier
   personnel).
-- `packages_online.conf` (d'origine) fait un `pacman -Syu` après l'installation
+- `packages_online.conf` (options d'origine) fait un `pacman -Syu` après l'installation
   des paquets : **le système installé est à jour**.
 
 ### Bureau Openbox (Packarch)
@@ -835,7 +826,7 @@ Modifications de la configuration d'origine :
   par `&&`, son échec sans mpd aurait empêché la veille. `.mpd` et
   `.ncmpcpp` ne sont plus dans les dossiers cachés affichés par
   `pa-places`. `xfce4-mpc-plugin` (greffon mpd du panneau XFCE, inutilisé)
-  est retiré de `packages_desktop.x86_64` et de `netinstall_live.conf`.
+  est retiré de `packages_desktop.x86_64` et de `packages_online.conf`.
   Spotify aussi : script `rofi-spotify` (sans raccourci), thèmes rofi
   `music.rasi` des 15 thèmes et icône dunst `music.png`, inutilisée ;
 - **horloge en 24 h** dans les 15 thèmes : `%I:%M %p` remplacé par `%H:%M`
@@ -922,7 +913,7 @@ Modifications de la configuration d'origine :
 - **plus de `packarch-themes`** (7.0-45) : ses thèmes GTK ne servent qu'au
   bureau XFCE. L'écran de connexion, commun aux deux bureaux, a son propre
   thème `Packarch-Greeter` (`packarch-system-settings` 1.0-4), et
-  `packarch-themes` sort du groupe commun de `netinstall_live.conf` ;
+  `packarch-themes` sort du groupe commun de `packages_online.conf` ;
 - pas de script `.install` : Calamares copie lui-même `/etc/skel`.
 
 `calamares-online.sh` (lancé par Packarch Hello) garde le rafraîchissement du
@@ -946,8 +937,8 @@ système déjà installé, `pacman -Syu` ne propose pas l'échange malgré le
 `replaces` : pacman s'arrête au premier dépôt qui contient `cachyos-hello`, et
 `[cachyos]` est lu avant `[packarch]`. Il faut lancer
 `sudo pacman -S packarch-hello`, qui retire `cachyos-hello`. Il est dans
-`packages_desktop.x86_64`, dans le groupe caché « CachyOS Packages » de
-`netinstall_live.conf`, et dans la liste des paquets gardés de
+`packages_desktop.x86_64`, dans les outils CachyOS de
+`packages_online.conf`, et dans la liste des paquets gardés de
 `removeun-online`.
 
 ### Installateur de paquets : Packarch Package Installer
@@ -961,7 +952,7 @@ La liste « Applications populaires » (`pkglist.yaml`) est téléchargée depui
 le dépôt GitHub de Packarch au lieu de celui de CachyOS : la modifier là-bas
 suffit, sans reconstruire l'ISO ni le paquet. Packarch Hello (1.2.0 et
 suivantes) lance `packarch-pi`. Comme `cachyos-packageinstaller`, il n'est
-que dans le groupe caché « CachyOS Packages » de `netinstall_live.conf` (le
+que dans les outils CachyOS de `packages_online.conf` (le
 système installé), pas dans le système live. Les deux paquets peuvent
 coexister : sur un système déjà installé, `sudo pacman -S packarch-pi`
 l'ajoute, et `cachyos-packageinstaller` peut être retiré à la main.
