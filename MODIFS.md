@@ -941,8 +941,11 @@ français seulement. Son bouton d'installation lance toujours
 `calamares-online.sh`, après avoir vérifié seulement la connexion Internet :
 plus de comparaison de la version de l'ISO avec `cachyos.org/versions.json`
 (qui ne connaît que les ISO CachyOS), ni de test d'édition (Packarch n'a que
-l'édition de bureau). Le paquet remplace `cachyos-hello` (`replaces`) : sur
-un système déjà installé, `pacman -Syu` propose l'échange. Il est dans
+l'édition de bureau). Le paquet est en conflit avec `cachyos-hello`. Sur un
+système déjà installé, `pacman -Syu` ne propose pas l'échange malgré le
+`replaces` : pacman s'arrête au premier dépôt qui contient `cachyos-hello`, et
+`[cachyos]` est lu avant `[packarch]`. Il faut lancer
+`sudo pacman -S packarch-hello`, qui retire `cachyos-hello`. Il est dans
 `packages_desktop.x86_64`, dans le groupe caché « CachyOS Packages » de
 `netinstall_live.conf`, et dans la liste des paquets gardés de
 `removeun-online`.
