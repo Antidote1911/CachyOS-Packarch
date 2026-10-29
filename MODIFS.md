@@ -591,7 +591,7 @@ retire `/etc/xdg/calamares` du système installé.
   tube, jamais en argument), l'extrait dans le dossier personnel, met
   `~/.ssh` en 700 et les clés privées en 600, puis lance `~/gitconfig.sh`.
   Ce dernier configure git et ajoute aussi à `/etc/fstab` (par `sudo`, sans
-  mot de passe pour `wheel`) le NFS du serveur (`/mnt/medias`) et le SSD de
+  mot de passe pour `wheel`) les NFS du serveur (`/mnt/medias`, `/mnt/partage`) et le SSD de
   données (`/mnt/ssd`, `nofail`), si leur point de montage n'y est pas déjà ;
   copie de l'original dans `/etc/fstab.avant-github-setup`.
   Mot de passe faux : redemandé. Annuler : « Plus tard » (redemandé à la
