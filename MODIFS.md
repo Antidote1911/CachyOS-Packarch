@@ -9,7 +9,7 @@ au choix **ce même bureau XFCE** ou **le bureau Openbox de Packarch**.
 où ce n'est pas un nom de CachyOS dont dépend le système : menus de GRUB,
 syslinux et systemd-boot (`PACKARCH_VERSION` remplace `CACHYOS_VERSION`), nom
 et étiquette de l'ISO (`packarch-desktop-linux-AAMMJJ.iso`, `PACKARCH_AAAAMM`),
-`etc/os-release` et `etc/cachyos-release` du live, nom d'hôte du live
+`etc/cachyos-release` du live, nom d'hôte du live
 (`packarch`) et du système installé (`packarch-<processeur>`), identifiant EFI
 du chargeur installé (`packarch`), message de la console (`etc/motd`), dépôt
 local `[packarch-live-local]` et fichiers propres à l'ISO
@@ -20,6 +20,14 @@ le trousseau de clés, le fichier `etc/cachyos-release` lui-même, l'entrée
 `/+CachyOS` de `limine.conf` (retrouvée par les outils Limine du système
 installé), le wiki et les références au projet d'origine. Calamares a son propre
 thème, voir [Thème Packarch](#thème-packarch).
+
+`/etc/os-release` et `/etc/lsb-release` (live et système installé) sont réécrits
+par les hooks pacman de `cachyos-hooks` à chaque installation ou mise à jour de
+`filesystem` : le `etc/os-release` de `airootfs` était écrasé pendant le build
+et a été supprimé. `packarch-system-settings` (1.0-5) y remet Packarch avec son
+hook `zz-packarch-branding`, exécuté après ceux de CachyOS (ordre alphabétique) :
+nom, liens, logo et `DISTRIB_DESCRIPTION`. `ID` et `DISTRIB_ID` restent
+`cachyos`, que des outils de CachyOS testent.
 
 ## Sommaire
 
