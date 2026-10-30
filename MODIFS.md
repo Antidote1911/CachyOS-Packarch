@@ -16,9 +16,10 @@ local `[packarch-live-local]` et fichiers propres à l'ISO
 (`50-packarch-live.conf`, `40-packarch-live-locale-gen.hook`). Restent en
 CachyOS : les paquets (`cachyos-*`, `linux-cachyos*`, dont
 `cachyos-calamares-next`, que notre version remplace), les dépôts, miroirs et
-le trousseau de clés, le fichier `etc/cachyos-release` lui-même, le thème
-Calamares (`branding: cachyos`, fourni par `cachyos-calamares-next`), le wiki
-et les références au projet d'origine.
+le trousseau de clés, le fichier `etc/cachyos-release` lui-même, l'entrée
+`/+CachyOS` de `limine.conf` (retrouvée par les outils Limine du système
+installé), le wiki et les références au projet d'origine. Calamares a son propre
+thème, voir [Thème Packarch](#thème-packarch).
 
 ## Sommaire
 
@@ -494,7 +495,7 @@ Le dossier `calamares/` contient donc :
 | Fichier | Rôle |
 |---|---|
 | `PKGBUILD` | celui de [CachyOS-PKGBUILDS](https://github.com/CachyOS/CachyOS-PKGBUILDS) (`cachyos-calamares/`), version `3.4.2-13.8`, figé sur le commit `199d71543db8` de la branche `cachyos-dev`, applique `live-offline.patch` |
-| `live-offline.patch` | nos modifications du **code** seulement (5 fichiers, détail ci-dessous) |
+| `live-offline.patch` | nos modifications du **code** seulement (6 fichiers, détail ci-dessous) |
 | `build.sh` | `makepkg`, puis copie du paquet dans `localrepo/` et `repo-add` ; rien si cette version y est déjà (`-f` : recompiler quand même) |
 
 Calamares est compilé avec
@@ -1001,6 +1002,30 @@ paquets. Il a été corrigé et reste disponible :
 - `shellprocess.conf` (configuration) : `~/.xprofile` n'est plus supprimé du dossier de
   l'utilisateur (nécessaire au fond d'écran), et `cachyos-calamares-next` est
   désinstallé à la toute fin (installation hors ligne).
+- `chwd/main.py` : « Installing needed drivers... » au lieu de « … for
+  CachyOS... » (message sans traduction française).
+
+### Thème Packarch
+
+Le thème (`branding`) de Calamares est `packarch`, dans
+`archiso/airootfs/etc/calamares/branding/packarch/` (Calamares cherche les
+thèmes dans `/etc/calamares/branding/`, pas dans `/etc/xdg`), sélectionné par
+`branding: packarch` dans `settings_online.conf` et `settings_offline.conf`.
+Il reprend la disposition du thème `cachyos` (barre des étapes en bas,
+`calamares-sidebar.qml` et `stylesheet.qss` inchangés), avec :
+
+- le logo de Packarch Hello (`logo.svg`, `logo.png` 64 px, `icon.png`
+  128 px) et une image d'accueil `welcome.png` (logo et nom) ;
+- les couleurs du logo : barre `#1c2027`, étape en cours `#62aeef` ;
+- un diaporama `show.qml` en français dessiné en QML (pas d'images à
+  traduire), six pages : Packarch, les deux bureaux, le sélecteur de thèmes,
+  la base CachyOS, Packarch Hello et Packarch Installer, l'aide ;
+- `bootloaderEntryName: Packarch` (`GRUB_DISTRIBUTOR` du système installé) et
+  un bouton « Assistance » vers les issues GitHub ; pas de serveur d'envoi des
+  journaux (celui de CachyOS est retiré).
+
+Le thème `cachyos` reste installé par le paquet mais n'est plus utilisé.
+`removeun` (mode hors ligne) supprime le thème du système installé.
 
 ### `removeun` (script d'origine, mode hors ligne)
 
@@ -1050,6 +1075,7 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `testiso.sh`, `ci.build.sh`, `lddd.sh`, `machines/`, `testcases/` | supprimés |
 | `calamares/PKGBUILD`, `calamares/live-offline.patch`, `calamares/build.sh` | ajoutés |
 | `archiso/airootfs/etc/xdg/calamares/` | ajouté (configuration de Calamares, lue avec `calamares -X`) |
+| `archiso/airootfs/etc/calamares/branding/packarch/` | ajouté (thème Packarch de Calamares) |
 | `localrepo/` | généré par `calamares/build.sh` |
 | `archiso/packages_desktop.x86_64` | KDE → XFCE et applications, `cachyos-zsh-config`, `packarch-hello` au lieu de `cachyos-hello`, sans noyau LTS ni outils de secours |
 | `archiso/grub/`, `archiso/syslinux/`, `archiso/efiboot/`, `airootfs/etc/mkinitcpio.d/linux.preset` | `linux-cachyos` seul |

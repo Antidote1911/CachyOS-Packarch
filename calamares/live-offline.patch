@@ -1,6 +1,6 @@
 From 05eea591c1082be0a7e5e767ef5dd296eb8d8187 Mon Sep 17 00:00:00 2001
 From: build <build@localhost>
-Date: Thu, 22 Oct 2026 09:41:05 +0200
+Date: Fri, 30 Oct 2026 20:30:00 +0100
 Subject: [PATCH] Code changes for the XFCE live ISO (online installation of
  XFCE or Openbox)
 
@@ -9,14 +9,15 @@ this patch: the ISO ships it in /etc/xdg/calamares, read first with
 calamares -X.
 ---
  src/modules/bootloader/main.py          | 9 ++++++---
+ src/modules/chwd/main.py                | 2 +-
  src/modules/grubcfg/main.py             | 3 +++
  src/modules/netinstall/PackageModel.cpp | 6 ++++++
  src/modules/pacstrap/main.py            | 5 ++---
  src/scripts/shell-setup                 | 3 ++-
- 5 files changed, 19 insertions(+), 7 deletions(-)
+ 6 files changed, 20 insertions(+), 8 deletions(-)
 
 diff --git a/src/modules/bootloader/main.py b/src/modules/bootloader/main.py
-index 4e9095d64..1c315327a 100644
+index 4e9095d..1c31532 100644
 --- a/src/modules/bootloader/main.py
 +++ b/src/modules/bootloader/main.py
 @@ -1095,9 +1095,12 @@ def prepare_bootloader(fw_type, install_hybrid_grub):
@@ -35,8 +36,21 @@ index 4e9095d64..1c315327a 100644
      except KeyError:
          # If the conf value for using global storage is not set, use the setting from the config file.
          try:
+diff --git a/src/modules/chwd/main.py b/src/modules/chwd/main.py
+index c2d586f..b472405 100755
+--- a/src/modules/chwd/main.py
++++ b/src/modules/chwd/main.py
+@@ -31,7 +31,7 @@ class HostError(Exception):
+ 
+ 
+ def pretty_name():
+-    return _("Installing needed drivers for CachyOS...")
++    return _("Installing needed drivers...")
+ 
+ 
+ def line_cb(line):
 diff --git a/src/modules/grubcfg/main.py b/src/modules/grubcfg/main.py
-index c16a650df..9837631a1 100644
+index c16a650..9837631 100644
 --- a/src/modules/grubcfg/main.py
 +++ b/src/modules/grubcfg/main.py
 @@ -309,6 +309,9 @@ def run():
@@ -50,7 +64,7 @@ index c16a650df..9837631a1 100644
      if bootloader != "grub":
          libcalamares.utils.warning("User selected bootloader is not GRUB, skipping")
 diff --git a/src/modules/netinstall/PackageModel.cpp b/src/modules/netinstall/PackageModel.cpp
-index bd666f3b7..9ae69fbb4 100644
+index bd666f3..9ae69fb 100644
 --- a/src/modules/netinstall/PackageModel.cpp
 +++ b/src/modules/netinstall/PackageModel.cpp
 @@ -320,6 +320,12 @@ PackageModel::updateSelections( const QStringList& selectNames, const QStringLis
@@ -67,7 +81,7 @@ index bd666f3b7..9ae69fbb4 100644
  
  PackageTreeItem::List
 diff --git a/src/modules/pacstrap/main.py b/src/modules/pacstrap/main.py
-index e97005c18..f78cbfb16 100755
+index e97005c..f78cbfb 100755
 --- a/src/modules/pacstrap/main.py
 +++ b/src/modules/pacstrap/main.py
 @@ -94,8 +94,7 @@ def run():
@@ -90,7 +104,7 @@ index e97005c18..f78cbfb16 100755
          libcalamares.utils.debug("Root on BTRFS")
          if bootloader == "limine":
 diff --git a/src/scripts/shell-setup b/src/scripts/shell-setup
-index 3708d7c85..e051a7f70 100755
+index 3708d7c..e051a7f 100755
 --- a/src/scripts/shell-setup
 +++ b/src/scripts/shell-setup
 @@ -1,6 +1,7 @@
@@ -102,6 +116,3 @@ index 3708d7c85..e051a7f70 100755
      if [ -e "/bin/$shell" ]; then
          chsh -s "/bin/${shell}" "$user" && break
      fi
--- 
-2.56.0
-
