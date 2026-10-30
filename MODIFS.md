@@ -16,9 +16,8 @@ local `[packarch-live-local]` et fichiers propres à l'ISO
 (`50-packarch-live.conf`, `40-packarch-live-locale-gen.hook`). Restent en
 CachyOS : les paquets (`cachyos-*`, `linux-cachyos*`, dont
 `cachyos-calamares-next`, que notre version remplace), les dépôts, miroirs et
-le trousseau de clés, le fichier `etc/cachyos-release` lui-même, l'entrée
-`/+CachyOS` de `limine.conf` (retrouvée par les outils Limine du système
-installé), le wiki et les références au projet d'origine. Calamares a son propre
+le trousseau de clés, le fichier `etc/cachyos-release` lui-même, le wiki et
+les références au projet d'origine. Calamares a son propre
 thème, voir [Thème Packarch](#thème-packarch).
 
 `/etc/os-release` et `/etc/lsb-release` (live et système installé) sont réécrits
@@ -26,8 +25,20 @@ par les hooks pacman de `cachyos-hooks` à chaque installation ou mise à jour d
 `filesystem` : le `etc/os-release` de `airootfs` était écrasé pendant le build
 et a été supprimé. `packarch-system-settings` (1.0-5) y remet Packarch avec son
 hook `zz-packarch-branding`, exécuté après ceux de CachyOS (ordre alphabétique) :
-nom, liens, logo et `DISTRIB_DESCRIPTION`. `ID` et `DISTRIB_ID` restent
-`cachyos`, que des outils de CachyOS testent.
+nom, liens, logo, `ID=packarch`, `ID_LIKE="cachyos arch"` (fastfetch garde le
+logo de CachyOS) et `DISTRIB_ID=packarch` (1.0-6). Aucun outil installé ne teste
+`ID=cachyos` (recherche du 2026-10-30). Il ajoute aussi l'icône `packarch.png`
+au thème GRUB `cachyos` (classe `packarch` de `GRUB_DISTRIBUTOR=Packarch`).
+
+**Entrée Limine.** `limine-entry-tool` et `limine-snapper-sync` retrouvent
+l'entrée du système dans `limine.conf` par la ligne `comment: machine-id=`
+placée **sous** son en-tête, sinon par le `PRETTY_NAME` d'`os-release`. Calamares
+écrivait cette ligne au-dessus de `/+CachyOS` : seul le nom comptait, et passer
+`PRETTY_NAME` à Packarch aurait créé une seconde entrée `/+Packarch` à la mise à
+jour suivante du noyau. `live-offline.patch` écrit donc `/+Packarch` (nom du
+thème) avec le `machine-id` dessous, et le hook de `packarch-system-settings`
+(1.0-7) renomme `/+CachyOS` en `/+Packarch` sur les systèmes déjà installés
+(réenrôlement de `limine.conf` si `ENABLE_ENROLL_LIMINE_CONFIG=yes`).
 
 ## Sommaire
 
@@ -1010,6 +1021,8 @@ paquets. Il a été corrigé et reste disponible :
 - `shellprocess.conf` (configuration) : `~/.xprofile` n'est plus supprimé du dossier de
   l'utilisateur (nécessaire au fond d'écran), et `cachyos-calamares-next` est
   désinstallé à la toute fin (installation hors ligne).
+- `bootloader/main.py` : entrée Limine nommée d'après le thème (`/+Packarch`),
+  avec son `machine-id` dessous (voir [Nom : Packarch](#modifications-par-rapport-à-liso-officielle-cachyos)).
 - `chwd/main.py` : « Installing needed drivers... » au lieu de « … for
   CachyOS... » (message sans traduction française).
 

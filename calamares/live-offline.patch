@@ -8,19 +8,36 @@ The configuration (settings_*.conf and module configurations) is not in
 this patch: the ISO ships it in /etc/xdg/calamares, read first with
 calamares -X.
 ---
- src/modules/bootloader/main.py          | 9 ++++++---
- src/modules/chwd/main.py                | 2 +-
- src/modules/grubcfg/main.py             | 3 +++
- src/modules/netinstall/PackageModel.cpp | 6 ++++++
- src/modules/pacstrap/main.py            | 5 ++---
- src/scripts/shell-setup                 | 3 ++-
- 6 files changed, 20 insertions(+), 8 deletions(-)
+ src/modules/bootloader/main.py          | 18 +++++++++++++-----
+ src/modules/chwd/main.py                |  2 +-
+ src/modules/grubcfg/main.py             |  3 +++
+ src/modules/netinstall/PackageModel.cpp |  6 ++++++
+ src/modules/pacstrap/main.py            |  5 ++---
+ src/scripts/shell-setup                 |  3 ++-
+ 6 files changed, 27 insertions(+), 10 deletions(-)
 
 diff --git a/src/modules/bootloader/main.py b/src/modules/bootloader/main.py
-index 4e9095d..1c31532 100644
+index 4e9095d..a1271f3 100644
 --- a/src/modules/bootloader/main.py
 +++ b/src/modules/bootloader/main.py
-@@ -1095,9 +1095,12 @@ def prepare_bootloader(fw_type, install_hybrid_grub):
+@@ -824,9 +824,14 @@ def update_limine_config(efi_directory, installation_root_path, fw_type):
+         except KeyError:
+             libcalamares.utils.warning('limineSplashLogo not set. Skipping wallpaper in limine.conf')
+ 
++        # OS entry named after the branding (Packarch), with its machine-id
++        # under it, where limine-entry-tool and limine-snapper-sync look for
++        # it (above it, they only find the entry by the PRETTY_NAME of
++        # os-release)
+         machine_id = get_machine_id(installation_root_path)
+-        config_file.write(f"comment: machine-id={machine_id}\n")
+-        config_file.write(f"/+CachyOS\n")
++        branding = libcalamares.globalstorage.value("branding")
++        config_file.write(f"/+{branding['bootloaderEntryName']}\n")
++        config_file.write(f"  comment: machine-id={machine_id}\n")
+ 
+     with open(limine_entry_config_path, 'w') as limine_entry_config:
+         limine_entry_config.write(f'ESP_PATH="{efi_directory}"\n')
+@@ -1095,9 +1100,12 @@ def prepare_bootloader(fw_type, install_hybrid_grub):
          if libcalamares.globalstorage.contains(gs_name):
              efi_boot_loader = libcalamares.globalstorage.value(gs_name)
          else:
