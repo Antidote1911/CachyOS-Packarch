@@ -13,7 +13,7 @@ set -euo pipefail
 
 cd "$(dirname "$(readlink -f "$0")")"
 repo_dir="$(readlink -f ../localrepo)"
-repo_name="cachyos-live-local"
+repo_name="packarch-live-local"
 
 # Generic x86-64 code: Calamares runs on the live ISO, on any processor (the
 # system makepkg.conf may use -march=native)

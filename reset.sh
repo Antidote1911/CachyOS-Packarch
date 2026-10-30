@@ -60,7 +60,7 @@ ${keep_vm} || targets+=(vm-test)
 
 # Date de l'ISO écrite dans grub.cfg par scripts/util-iso.sh à chaque build
 grub_cfg=archiso/grub/grub.cfg
-grub_version='CACHYOS_VERSION="AAMMJJ"'
+grub_version='PACKARCH_VERSION="AAMMJJ"'
 grub_dirty=false
 grep -qx "${grub_version}" "${grub_cfg}" || grub_dirty=true
 
@@ -95,6 +95,6 @@ fi
 
 # out/, build/ et les fichiers d'archiso/ appartiennent à root
 (( ${#existing[@]} )) && sudo rm -rf -- "${existing[@]}"
-${grub_dirty} && sed -i "s/^CACHYOS_VERSION=\".*\"$/${grub_version}/" "${grub_cfg}"
+${grub_dirty} && sed -i "s/^PACKARCH_VERSION=\".*\"$/${grub_version}/" "${grub_cfg}"
 
 echo "Projet nettoyé."

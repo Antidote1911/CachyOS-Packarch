@@ -1,10 +1,10 @@
-NAME="CachyOS"
-PRETTY_NAME="CachyOS"
+NAME="Packarch"
+PRETTY_NAME="Packarch"
 ID=arch
 BUILD_ID=rolling
 ANSI_COLOR="38;2;23;147;209"
-HOME_URL="https://cachyos.org"
+HOME_URL="https://github.com/Antidote1911/CachyOS-Packarch"
 DOCUMENTATION_URL="https://wiki.cachyos.org/"
-SUPPORT_URL="https://discuss.cachyos.org"
-BUG_REPORT_URL="https://github.com/cachyos"
-LOGO=cachyos
+SUPPORT_URL="https://github.com/Antidote1911/CachyOS-Packarch/issues"
+BUG_REPORT_URL="https://github.com/Antidote1911/CachyOS-Packarch/issues"
+LOGO=org.packarch.hello

@@ -18,7 +18,7 @@ _clean_packages() {
 
     rm /etc/sddm.conf || true
     rm /etc/plasmalogin.conf || true
-    rm /etc/lightdm/lightdm.conf.d/50-cachyos-live.conf || true
+    rm /etc/lightdm/lightdm.conf.d/50-packarch-live.conf || true
 }
 
 _pacman_fix() {

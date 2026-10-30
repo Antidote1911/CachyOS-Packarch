@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Started by CachyOS Hello ("Launch installer"). Online installation: the
+# Started by Packarch Hello ("Launch installer"). Online installation: the
 # packages are downloaded (up to date) by pacstrap, then the XFCE settings of
 # the live ISO are copied to the target (packages@online, shellprocess@live_config).
 # Calamares comes from the local repository of the ISO build (calamares/), it

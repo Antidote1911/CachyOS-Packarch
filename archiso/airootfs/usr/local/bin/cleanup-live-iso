@@ -43,7 +43,7 @@ rm -f /etc/systemd/system-generators/systemd-gpt-auto-generator
 rm -f /root/.automated_script.sh /root/.zlogin /etc/motd
 rm -rf /root/.gnupg
 
-# Live launchers (Calamares, CachyOS Hello)
+# Live launchers (Calamares, Packarch Hello)
 rm -f /usr/local/bin/calamares-online.sh /usr/local/bin/pkexec-wrapper
 
 # First login: GitHub setup (not started on the live ISO)

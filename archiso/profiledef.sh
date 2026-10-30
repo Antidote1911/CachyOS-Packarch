@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="cachyos"
-iso_label="COS_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="CachyOS <https://cachyos.org>"
-iso_application="CachyOS Live/Rescue DVD"
+iso_name="packarch"
+iso_label="PACKARCH_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
+iso_publisher="Packarch <https://github.com/Antidote1911/CachyOS-Packarch>"
+iso_application="Packarch Live/Rescue DVD"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')

@@ -57,8 +57,8 @@ trap_exit() {
 
 generate_motd() {
     cat << 'EOF' > ${src_dir}/archiso/airootfs/etc/motd
-This ISO is based on ArchLinux ISO modified to provide Installation Environment for [38;2;23;147;209mCachyOS[0m.
-https://cachyos.org
+This ISO is based on ArchLinux ISO modified to provide Installation Environment for [38;2;23;147;209mPackarch[0m, based on CachyOS.
+https://github.com/Antidote1911/CachyOS-Packarch
 
 CachyOS Archiso Sources:
 https://github.com/cachyos/cachyos-live-iso
@@ -69,11 +69,11 @@ https://gitlab.archlinux.org/archlinux/archiso
 Calamares is used as GUI installer:
 https://github.com/calamares/calamares
 
-Live environment will start now and let you install [38;2;23;147;209mCachyOS[0m to disk.
+Live environment will start now and let you install [38;2;23;147;209mPackarch[0m to disk.
 
-Getting help at the forum: https://discuss.cachyos.org
+Report a problem: https://github.com/Antidote1911/CachyOS-Packarch/issues
 
-Welcome to your [38;2;23;147;209mCachyOS[0m!
+Welcome to your [38;2;23;147;209mPackarch[0m!
 
 [41m [41m [41m [40m [44m [40m [41m [46m [45m [41m [46m [43m [41m [44m [45m [40m [44m [40m [41m [44m [41m [41m [46m [42m [41m [44m [43m [41m [45m [40m [40m [44m [40m [41m [44m [42m [41m [46m [44m [41m [46m [47m [0m
 EOF
@@ -88,7 +88,7 @@ fetch_cachyos_mirrorlist() {
 
 change_grub_version() {
     local _version="$1"
-    sed -i "s/CACHYOS_VERSION=\".*\"/CACHYOS_VERSION=\"${_version}\"/" ${src_dir}/archiso/grub/grub.cfg
+    sed -i "s/PACKARCH_VERSION=\".*\"/PACKARCH_VERSION=\"${_version}\"/" ${src_dir}/archiso/grub/grub.cfg
 }
 
 generate_environment() {
@@ -183,10 +183,10 @@ run_build() {
     # Local repository built by calamares/build.sh (our Calamares, installs
     # the XFCE desktop of the live ISO), listed before [cachyos] so that it wins
     local _localrepo="${src_dir}/localrepo"
-    [[ -f "${_localrepo}/cachyos-live-local.db" ]] || \
+    [[ -f "${_localrepo}/packarch-live-local.db" ]] || \
         die "Local repository missing: run calamares/build.sh (as a normal user) first"
     msg2 "Adding local repository ${_localrepo}"
-    sed -i "0,/^\[cachyos\]$/s||[cachyos-live-local]\nSigLevel = Optional TrustAll\nServer = file://${_localrepo}\n\n[cachyos]|" \
+    sed -i "0,/^\[cachyos\]$/s||[packarch-live-local]\nSigLevel = Optional TrustAll\nServer = file://${_localrepo}\n\n[cachyos]|" \
         ${work_dir}/archiso/pacman.conf
 
     msg "Start [Build ISO]"
@@ -200,7 +200,7 @@ run_build() {
     sudo chown $USER $outFolder
 
     cp ${work_dir}/iso/arch/pkglist.x86_64.txt "$outFolder/$_profile/$(gen_iso_fn).pkgs.txt"
-    mv "$outFolder/$_profile/cachyos-$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)-x86_64.iso" "$outFolder/$_profile/${iso_file}"
+    mv "$outFolder/$_profile/packarch-$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)-x86_64.iso" "$outFolder/$_profile/${iso_file}"
 
     msg "Done [Build ISO] ${iso_file}"
     msg "Finished building [%s]" "${_profile}"
@@ -238,7 +238,7 @@ run_build() {
 
 gen_iso_fn(){
     local vars=() name
-    vars+=("cachyos")
+    vars+=("packarch")
     [[ -n ${profile} ]] && vars+=("${profile}")
 
     vars+=("linux")

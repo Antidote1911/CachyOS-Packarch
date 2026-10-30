@@ -2,7 +2,7 @@
 # Maintainer: Vladislav Nepogodin <nepogodin.vlad@gmail.com>
 # Contributor: Philip Müller <philm[at]manjaro[dog]org>
 #
-# CachyOS-Live-ISO: rebuild of cachyos-calamares-next (CachyOS-PKGBUILDS) for
+# Packarch: rebuild of cachyos-calamares-next (CachyOS-PKGBUILDS) for
 # the XFCE live ISO. Built against the current boost of the repositories, with
 # live-offline.patch: the code changes only (hidden netinstall groups selected
 # by name, no LTS kernel, offline bootloader, zsh first). The configuration

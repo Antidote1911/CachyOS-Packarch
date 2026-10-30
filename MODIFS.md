@@ -5,6 +5,21 @@ L'ISO officielle démarre sur KDE Plasma ; celle-ci démarre sur **XFCE, en fran
 avec un sélecteur de thèmes, et son installeur installe, **en ligne et à jour**,
 au choix **ce même bureau XFCE** ou **le bureau Openbox de Packarch**.
 
+**Nom : Packarch.** Depuis le 2026-10-30, l'ISO porte le nom de Packarch partout
+où ce n'est pas un nom de CachyOS dont dépend le système : menus de GRUB,
+syslinux et systemd-boot (`PACKARCH_VERSION` remplace `CACHYOS_VERSION`), nom
+et étiquette de l'ISO (`packarch-desktop-linux-AAMMJJ.iso`, `PACKARCH_AAAAMM`),
+`etc/os-release` et `etc/cachyos-release` du live, nom d'hôte du live
+(`packarch`) et du système installé (`packarch-<processeur>`), identifiant EFI
+du chargeur installé (`packarch`), message de la console (`etc/motd`), dépôt
+local `[packarch-live-local]` et fichiers propres à l'ISO
+(`50-packarch-live.conf`, `40-packarch-live-locale-gen.hook`). Restent en
+CachyOS : les paquets (`cachyos-*`, `linux-cachyos*`, dont
+`cachyos-calamares-next`, que notre version remplace), les dépôts, miroirs et
+le trousseau de clés, le fichier `etc/cachyos-release` lui-même, le thème
+Calamares (`branding: cachyos`, fourni par `cachyos-calamares-next`), le wiki
+et les références au projet d'origine.
+
 ## Sommaire
 
 1. [Reconstruire l'ISO](#1-reconstruire-liso)
@@ -61,7 +76,7 @@ est demandé pour l'étape 2) :
 4. rend à l'utilisateur les fichiers de `out/` (produits par root).
 
 - L'ISO est produite dans `out/desktop/` :
-  `cachyos-desktop-linux-AAMMJJ.iso`, avec ses sommes `.sha256`/`.sha1` et la
+  `packarch-desktop-linux-AAMMJJ.iso`, avec ses sommes `.sha256`/`.sha1` et la
   liste des paquets `.pkgs.txt`.
 - Options de `build.sh` : `-f` recompiler Calamares même si sa version est
   déjà dans `localrepo/` ; transmises à `buildiso.sh` : `-v` journal détaillé,
@@ -128,7 +143,7 @@ Supprime tout ce que `build.sh` et `run.sh` génèrent : `out/`, `build/`,
 `calamares`, `*.pkg.tar.zst`), les fichiers écrits dans
 `archiso/` par `scripts/util-iso.sh` (voir section 7) et `vm-test/`, et
 remet la date de l'ISO, que `util-iso.sh` écrit dans `archiso/grub/grub.cfg`
-à chaque build, à `CACHYOS_VERSION="AAMMJJ"` ; `.gitignore` exclut de toute
+à chaque build, à `PACKARCH_VERSION="AAMMJJ"` ; `.gitignore` exclut de toute
 façon les mêmes chemins (sauf `grub.cfg`, fichier source).
 
 Supprimés de l'original : `testiso.sh` (VirtualBox), `ci.build.sh` (appelait
@@ -224,7 +239,7 @@ après son installation :
 
 **Gestionnaire de connexion** : `scripts/util-iso.sh` active `lightdm.service` au lieu
 de `plasmalogin.service`. Connexion automatique de `liveuser` en session XFCE
-par `etc/lightdm/lightdm.conf.d/50-cachyos-live.conf` (supprimé du système
+par `etc/lightdm/lightdm.conf.d/50-packarch-live.conf` (supprimé du système
 installé par `removeun` et `removeun-online`).
 
 **Supprimés de `airootfs`** (réglages KDE) : `etc/plasmalogin.conf`,
@@ -241,7 +256,7 @@ installé par `removeun` et `removeun-online`).
 |---|---|
 | `etc/locale.conf` | `LANG=fr_FR.UTF-8` (avant : `C.UTF-8`) |
 | `etc/locale.gen` | `fr_FR.UTF-8` et `en_US.UTF-8` |
-| `etc/pacman.d/hooks/40-cachyos-live-locale-gen.hook` | lance `locale-gen` pendant le build |
+| `etc/pacman.d/hooks/40-packarch-live-locale-gen.hook` | lance `locale-gen` pendant le build |
 | `/usr/share/libalpm/hooks/90-packarch-geany-new-instance.hook` (`packarch-system-settings`) | `geany.desktop` lance `geany -i %F` : une nouvelle instance à chaque ouverture ; réappliqué à chaque mise à jour de `geany` (live et système installé) |
 | `/usr/share/libalpm/hooks/90-packarch-hide-desktop-entries.hook` + `/usr/bin/packarch-hide-desktop-entries` (`packarch-system-settings`) | ajoute `NoDisplay=true` (entrée cachée des menus XFCE et rofi, mais toujours utilisable comme application par défaut) à « À propos de Xfce » (`xfce4-about`), « Émulateur de terminal », « Lecteur de courriels », « Navigateur web » (`xfce4-terminal-emulator`, `xfce4-mail-reader`, `xfce4-web-browser`), mpv, Qt V4L2 test/video (`qv4l2`, `qvidcap`), Rofi, Rofi Theme Selector et Icon Browser (`yad-icon-browser` : yad reste installé, les menus Openbox s’en servent) ; réappliqué à chaque mise à jour des paquets concernés et à l'installation de `packarch-system-settings` (live et système installé, XFCE et Openbox) |
 | `etc/vconsole.conf` | `KEYMAP=fr-latin9` (consoles texte) |
@@ -488,7 +503,7 @@ système, mais en code x86-64 générique (`-march=x86-64 -mtune=generic -O2`).
 Le `makepkg.conf` de CachyOS peut utiliser `-march=native`, et ces programmes
 tournent sur le live ou le système installé, sur n'importe quel processeur.
 
-`scripts/util-iso.sh` ajoute le dépôt local `[cachyos-live-local]`
+`scripts/util-iso.sh` ajoute le dépôt local `[packarch-live-local]`
 (`Server = file://…/localrepo`, `SigLevel = Optional TrustAll`) **avant**
 `[cachyos]` dans la copie de `pacman.conf` utilisée par le build : l'ISO prend
 notre Calamares plutôt que l'officiel.
@@ -1042,8 +1057,8 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 | `archiso/airootfs/root/.zshrc` | ajouté (configuration zsh CachyOS pour root) |
 | `archiso/profiledef.sh` | permissions 755 de `cleanup-live-iso`, `apply-live-config`, `live-fit-display`, `github-setup` |
 | `archiso/airootfs/etc/locale.conf`, `locale.gen`, `vconsole.conf`, `localtime`, `X11/xorg.conf.d/00-keyboard.conf` | français, `Europe/Paris` |
-| `archiso/airootfs/etc/lightdm/lightdm.conf.d/50-cachyos-live.conf` | ajouté (connexion automatique) |
-| `archiso/airootfs/etc/pacman.d/hooks/40-cachyos-live-locale-gen.hook` | ajouté |
+| `archiso/airootfs/etc/lightdm/lightdm.conf.d/50-packarch-live.conf` | ajouté (connexion automatique) |
+| `archiso/airootfs/etc/pacman.d/hooks/40-packarch-live-locale-gen.hook` | ajouté |
 | `archiso/airootfs/etc/pacman.d/hooks/80-live-xfce-skel.hook` et `.sh` | ajoutés (bouton du live ; `80-cachyos-live-xfce-skel` jusqu'au 2026-10-24) |
 | `archiso/airootfs/etc/pacman.d/hooks/90-cachyos-live-kwin-keyboard.hook` | supprimé |
 | `archiso/airootfs/etc/plasmalogin.conf`, `plasmalogin.conf.d/` | supprimés |
@@ -1067,7 +1082,7 @@ Hors fichiers générés à chaque build (`etc/motd`, `etc/environment`,
 
 - **Build à cheval sur minuit** : le renommage final échoue (`mv: cannot stat
   …`), car `scripts/buildiso.sh` cherche un fichier daté du jour de fin. L'ISO est
-  quand même produite sous le nom `out/desktop/cachyos-AAAA.MM.JJ-x86_64.iso`
+  quand même produite sous le nom `out/desktop/packarch-AAAA.MM.JJ-x86_64.iso`
   (date de début). Défaut du script d'origine, non corrigé.
 - **Installation en ligne** : nécessite Internet (Packarch Hello le vérifie avant
   de lancer l'installeur). Elle télécharge tout le système (environ 3 Go).

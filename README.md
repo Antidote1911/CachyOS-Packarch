@@ -1,7 +1,7 @@
-# CachyOS Live ISO — édition XFCE en français
+# Packarch — ISO live XFCE en français, dérivée de CachyOS
 
 Dérivé de [cachyos-live-iso](https://github.com/cachyos/cachyos-live-iso), ce
-dépôt construit une ISO live de [CachyOS](https://cachyos.org) qui démarre sur
+dépôt construit l'ISO live de **Packarch**, distribution dérivée de [CachyOS](https://cachyos.org), qui démarre sur
 **XFCE, en français**, et dont l'installeur Calamares installe, **en ligne et
 à jour**, au choix **ce même bureau XFCE** ou **le bureau Openbox
 de Packarch**.
@@ -56,8 +56,8 @@ En **utilisateur normal** (le mot de passe `sudo` n'est demandé que pour
 l'étape de l'ISO) :
 
 ```bash
-git clone <adresse de ce dépôt> CachyOS-Live-ISO
-cd CachyOS-Live-ISO
+git clone https://github.com/Antidote1911/CachyOS-Packarch.git
+cd CachyOS-Packarch
 ./build.sh
 ```
 
