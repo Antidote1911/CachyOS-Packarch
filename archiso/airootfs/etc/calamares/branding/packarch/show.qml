@@ -52,7 +52,7 @@ Presentation
 
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: "logo.svg"
+                source: "packarch.png"
                 width: slide.height * 0.22
                 height: width
                 sourceSize.width: width

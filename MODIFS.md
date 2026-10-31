@@ -1035,8 +1035,11 @@ thèmes dans `/etc/calamares/branding/`, pas dans `/etc/xdg`), sélectionné par
 Il reprend la disposition du thème `cachyos` (barre des étapes en bas,
 `calamares-sidebar.qml` et `stylesheet.qss` inchangés), avec :
 
-- le logo de Packarch Hello (`logo.svg`, `logo.png` 64 px, `icon.png`
-  128 px) et une image d'accueil `welcome.png` (logo et nom) ;
+- l'icône Pac-Man `packarch.png` de Packarch (`logo.png` 64 px, `icon.png`
+  128 px, `packarch.png` 512 px pour le diaporama), et une image d'accueil
+  `welcome.png` (icône et nom) ; c'est la même que `/usr/share/pixmaps/packarch.png`
+  de `packarch-system-settings` 1.0-8 (avatar par défaut de LightDM, logo de
+  fastfetch dans kitty) ;
 - les couleurs du logo : barre `#1c2027`, étape en cours `#62aeef` ;
 - un diaporama `show.qml` en français dessiné en QML (pas d'images à
   traduire), six pages : Packarch, les deux bureaux, le sélecteur de thèmes,
