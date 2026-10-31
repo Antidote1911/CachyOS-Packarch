@@ -470,21 +470,21 @@ utilisateurs dans `/usr/share/xfcethemes/` par `packarch-xfce-settings` :
   `theme-switcher.sh` contient la liste des fichiers de chaque thème
   (`WALLPAPERS`), le thème « default » utilise `xfce-default.png`.
 
-**Thèmes du dépôt Packarch** ([myrepo](https://github.com/Antidote1911/myrepo)
+**Thèmes du dépôt Packarch** ([myrepo](https://github.com/packarch/myrepo)
 de l'auteur) :
 
 - dépôt `[packarch]` (`SigLevel = Optional TrustAll`,
   `Include = /etc/pacman.d/packarch-mirrorlist`) ajouté à la fin de
   `etc/pacman.conf` (live) et de `etc/pacman-more.conf` (copié comme
   `pacman.conf` du système installé). Pour le build, `archiso/pacman.conf`
-  le déclare avec `Server = https://antidote1911.github.io/myrepo/$arch`
+  le déclare avec `Server = https://packarch.github.io/myrepo/$arch`
   (pas besoin du fichier de miroirs sur la machine qui construit l'ISO).
 - `etc/pacman.d/packarch-mirrorlist` est fourni par `airootfs` et **non** par le
   paquet `packarch-mirrorlist` : ce paquet ne le déclare pas en `backup`, et Calamares
   doit le copier sur le système installé **avant** pacstrap (voir section 6),
   ce qui ferait échouer l'installation du paquet (« existe déjà »).
 - paquets installés (live et système installé), un par catégorie (sources :
-  [myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs)), réduits à ce
+  [myrepo-pkgs](https://github.com/packarch/myrepo-pkgs)), réduits à ce
   qu'utilise le bureau XFCE (sélecteur de thèmes, écran de connexion) :
   `packarch-themes` (thèmes GTK `Arc-Dark`, `Dracula`, `Greybird-dark`,
   `Gruvbox`, `Juno-Mirage`, `Nordic`, `Orchis-Red-Dark` ; live et bureau XFCE
@@ -660,7 +660,7 @@ retire `/etc/xdg/calamares` du système installé.
 ### Bureau Openbox (Packarch)
 
 Le choix « Openbox » installe `packarch-openbox` depuis [packarch] (sources :
-[myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs), licence GPL3) :
+[myrepo-pkgs](https://github.com/packarch/myrepo-pkgs), licence GPL3) :
 polybar, menus rofi, dunst, picom, kitty et 10 thèmes, changés depuis
 le menu du bureau. La configuration est reprise de la version GPL3 de la
 configuration Openbox d'Aditya Shakya (7.0-9) ; la version premium (licence
@@ -975,7 +975,7 @@ aussi la sortie de Calamares dans `/home/liveuser/cachy-install.log`.
 
 CachyOS Hello est remplacé par **Packarch Hello** (paquet `packarch-hello`
 du dépôt `[packarch]`, sources sur
-[GitHub](https://github.com/Antidote1911/packarch-hello)), un fork de
+[GitHub](https://github.com/packarch/packarch-hello)), un fork de
 CachyOS Hello 0.28.1 : nom, logo, textes et liens de Packarch, sans forum,
 dons, Discord ni Reddit, sans le code propre à KDE, en anglais et en
 français seulement. Son bouton d'installation lance toujours
@@ -996,7 +996,7 @@ système déjà installé, `pacman -Syu` ne propose pas l'échange malgré le
 CachyOS Package Installer (`cachyos-packageinstaller`) est remplacé par
 **Packarch Installer** (paquet `packarch-pi` du dépôt
 `[packarch]`, sources sur
-[GitHub](https://github.com/Antidote1911/packarch-pi)), un fork de la version
+[GitHub](https://github.com/packarch/packarch-pi)), un fork de la version
 1.6.2 : interface en français seulement, onglet Flatpak affiché par défaut.
 La liste « Applications populaires » (`pkglist.yaml`) est téléchargée depuis
 le dépôt GitHub de Packarch au lieu de celui de CachyOS : la modifier là-bas

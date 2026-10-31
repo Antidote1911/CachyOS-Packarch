@@ -130,7 +130,7 @@ Presentation
 
     PackarchSlide {
         title: "Besoin d'aide ?"
-        body: "Signalez un problème sur GitHub :<br><b>github.com/Antidote1911/CachyOS-Packarch/issues</b>" +
+        body: "Signalez un problème sur GitHub :<br><b>github.com/packarch/CachyOS-Packarch/issues</b>" +
               "<br><br>Le wiki de CachyOS reste valable pour l'essentiel :<br><b>wiki.cachyos.org</b>"
     }
 

@@ -3,7 +3,7 @@
 
 iso_name="packarch"
 iso_label="PACKARCH_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="Packarch <https://github.com/Antidote1911/CachyOS-Packarch>"
+iso_publisher="Packarch <https://github.com/packarch/CachyOS-Packarch>"
 iso_application="Packarch Live/Rescue DVD"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"

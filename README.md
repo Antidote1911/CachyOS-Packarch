@@ -21,7 +21,7 @@ Le détail de chaque modification par rapport à l'ISO officielle est dans
   `blue`, `gray`, `green`, `purple`, `red`, `yellow`) qui changent d'un clic le
   fond d'écran, le thème GTK, les bordures, les icônes et les couleurs du
   terminal. Les thèmes viennent du dépôt
-  [Packarch](https://github.com/Antidote1911/myrepo) de l'auteur.
+  [Packarch](https://github.com/packarch/myrepo) de l'auteur.
 - **zsh** comme shell par défaut, avec `cachyos-zsh-config` (oh-my-zsh,
   autosuggestions, coloration syntaxique) et une configuration
   **powerlevel10k** prête à l'emploi : pas d'assistant au premier terminal.
@@ -56,7 +56,7 @@ En **utilisateur normal** (le mot de passe `sudo` n'est demandé que pour
 l'étape de l'ISO) :
 
 ```bash
-git clone https://github.com/Antidote1911/CachyOS-Packarch.git
+git clone https://github.com/packarch/CachyOS-Packarch.git
 cd CachyOS-Packarch
 ./build.sh
 ```
@@ -70,7 +70,7 @@ cd CachyOS-Packarch
 
 Le bureau Openbox (`packarch-openbox`, `packarch-skin`), les thèmes, icônes et
 fonds d'écran viennent du dépôt [packarch]
-([myrepo-pkgs](https://github.com/Antidote1911/myrepo-pkgs)) : le publier avant
+([myrepo-pkgs](https://github.com/packarch/myrepo-pkgs)) : le publier avant
 de construire l'ISO.
 
 L'ISO est produite dans `out/desktop/`, avec ses sommes de contrôle et la
