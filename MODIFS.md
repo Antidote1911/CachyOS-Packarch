@@ -29,6 +29,21 @@ nom, liens, logo, `ID=packarch`, `ID_LIKE="cachyos arch"` (fastfetch garde le
 logo de CachyOS) et `DISTRIB_ID=packarch` (1.0-6). Aucun outil installé ne teste
 `ID=cachyos` (recherche du 2026-10-30). Il ajoute aussi l'icône `packarch.png`
 au thème GRUB `cachyos` (classe `packarch` de `GRUB_DISTRIBUTOR=Packarch`).
+Depuis la 1.0-10, il installe son propre thème GRUB `packarch` (copie du thème
+`cachyos` de `cachyos-grub-theme`, GPL-3.0, avec le fond et l'icône de Packarch
+et le compte à rebours en français) : `grubcfg.conf` (dans
+`archiso/airootfs/etc/xdg/calamares/modules/`) le choisit avec `GRUB_THEME`, et
+le hook bascule les systèmes encore sur le thème `cachyos`.
+
+Pas de plymouth : les messages du démarrage défilent toujours. `pacstrap.conf`
+(copie de celui du paquet Calamares) n'installe ni `plymouth` ni les thèmes
+plymouth de CachyOS, `settings_online.conf` n'exécute plus `plymouthcfg`, et
+`bootloader.conf` n'a plus `quiet` dans `kernelParams` (Limine, systemd-boot).
+Pour GRUB, `grubcfg` retire `quiet` et `splash` de `/etc/default/grub`, et
+`loglevel=4` (niveau par défaut du noyau CachyOS) remplace le `loglevel=3` du
+paquet grub. Sans plymouth dans le système, Calamares
+n'ajoute ni le hook mkinitcpio `plymouth` ni `splash`. L'ISO live n'a pas
+plymouth.
 
 **Entrée Limine.** `limine-entry-tool` et `limine-snapper-sync` retrouvent
 l'entrée du système dans `limine.conf` par la ligne `comment: machine-id=`
