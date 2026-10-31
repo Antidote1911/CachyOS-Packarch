@@ -218,7 +218,7 @@ de GRUB retirée, entrée systemd-boot `02-archiso-linux-cachyos.conf` retirée
 | Bureau | `xfce4`, les extensions de `xfce4-goodies` **sauf** `parole`, `xfburn`, `xfce4-sensors-plugin` et `mousepad`, `thunar-archive-plugin`, `thunar-media-tags-plugin`, `packarch-xfce-settings` (réglages XFCE dans `/etc/skel` et sélecteur de thèmes, dépôt Packarch, au lieu de `cachyos-xfce-settings` : voir [section 4](#4-réglages-xfce-packarch-xfce-settings)) |
 | Affichage et connexion | `xorg-server`, `xf86-input-libinput`, `lightdm`, `lightdm-gtk-greeter`, `lightdm-gtk-greeter-settings` |
 | Remplaçants des outils KDE | `network-manager-applet`, `blueman`, `pavucontrol`, `polkit-gnome`, `gvfs`, `gvfs-mtp`, `gvfs-smb`, `file-roller`, `xarchiver`, `ristretto`, `catfish` (recherche de fichiers) |
-| Applications | `geany` (seul éditeur graphique, avec `nano` en console), `meld` (comparaison de fichiers), `smplayer`, `smplayer-skins`, `smplayer-themes` (et `mpv` en dépendance), `btop`, `yay` |
+| Applications | `geany` (seul éditeur graphique, avec `nano` en console), `meld` (comparaison de fichiers), `smplayer`, `smplayer-skins`, `smplayer-themes` (et `mpv` en dépendance), `htop` (btop est proposé dans Packarch Installer), `yay` |
 | Applications de l'auteur (dépôt Packarch) | `cryptyrust` (chiffrement de fichiers), `liloucalc` (calculatrice scientifique), `nounours-player` (lecteur multimédia), `packarch-rmatrix` (effet « Matrix » en console) |
 | Démarrage | `cachyos-grub-theme` |
 

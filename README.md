@@ -25,7 +25,7 @@ Le détail de chaque modification par rapport à l'ISO officielle est dans
 - **zsh** comme shell par défaut, avec `cachyos-zsh-config` (oh-my-zsh,
   autosuggestions, coloration syntaxique) et une configuration
   **powerlevel10k** prête à l'emploi : pas d'assistant au premier terminal.
-- **Applications** : Firefox, Geany (préconfiguré), Meld, SMPlayer, btop,
+- **Applications** : Firefox, Geany (préconfiguré), Meld, SMPlayer, htop,
   catfish, et les logiciels de l'auteur : Cryptyrust, LilouCalc,
   Nounours Player, packarch-rmatrix.
 - **Calamares recompilé** (dossier `calamares/`) :
